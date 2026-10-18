@@ -26,7 +26,7 @@
 **Interfaces:**
 - Produces: `fun PrefixUtils.suggestPrefixPattern(rawNumber: String): String`
 
-- [ ] **Step 1: Write unit test for prefix extraction**
+- [x] **Step 1: Write unit test for prefix extraction**
 
 ```kotlin
 package spam.blocker.util
@@ -43,14 +43,14 @@ class PrefixUtilsTest {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.util.PrefixUtilsTest"`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `PrefixUtils.kt` and add "Block Prefix" item to `HistoryContextMenu.kt`**
-- [ ] **Step 4: Run test to verify it passes**
-- [ ] **Step 5: Run `./gradlew assembleDebug lint` and commit: `feat: add block prefix action to history context menu`**
+- [x] **Step 3: Implement `PrefixUtils.kt` and add "Block Prefix" item to `HistoryContextMenu.kt`**
+- [x] **Step 4: Run test to verify it passes**
+- [x] **Step 5: Run `./gradlew assembleDebug lint` and commit: `feat: add block prefix action to history context menu`**
 
 ---
 
@@ -65,8 +65,8 @@ Expected: FAIL
 - Produces: `fun HistoryTable.countBlockedSince(ctx: Context, sinceMillis: Long): Int`
 - `HistoryHeader` displays discrete subtitle text: `Str(R.string.blocked_last_7_days, count)` in `G.palette.textGrey` (12sp).
 
-- [ ] **Step 1: Implement `countBlockedSince` in `CallTable` and `SmsTable`**
-- [ ] **Step 2: Add reactive state to `HistoryViewModel` refreshed during `reload()`**
-- [ ] **Step 3: Render discreet 12sp summary inside `HistoryHeader`**
-- [ ] **Step 4: Add dark 320dp/1.3x preview for `HistoryHeader` with stats**
-- [ ] **Step 5: Run `./gradlew assembleDebug lint` and commit: `feat: display weekly blocked count in history header`**
+- [x] **Step 1: Implement `countBlockedSince` in `CallTable` and `SmsTable`**
+- [x] **Step 2: Add reactive state to `HistoryViewModel` refreshed during `reload()`**
+- [x] **Step 3: Render discreet 12sp summary inside `HistoryHeader`**
+- [x] **Step 4: Add dark 320dp/1.3x preview for `HistoryHeader` with stats**
+- [x] **Step 5: Run `./gradlew assembleDebug lint` and commit: `feat: display weekly blocked count in history header`**
