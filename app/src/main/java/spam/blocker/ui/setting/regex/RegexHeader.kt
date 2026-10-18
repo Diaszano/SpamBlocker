@@ -1,7 +1,6 @@
 package spam.blocker.ui.setting.regex
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -160,7 +159,6 @@ fun RegexHeader(
 
     LabeledRow(
         labelId = labelId,
-        modifier = M.clickable{ vm.toggleCollapse(ctx) },
         isCollapsed = vm.listCollapsed.value,
         toggleCollapse = { vm.toggleCollapse(ctx) },
         helpTooltip = helpTooltip,

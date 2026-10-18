@@ -14,8 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
 import spam.blocker.R
-import spam.blocker.ui.setting.LabeledRow
-import spam.blocker.ui.widgets.GreyButton
+import spam.blocker.ui.setting.SettingItem
 import spam.blocker.ui.widgets.GreyIcon20
 import spam.blocker.ui.widgets.GreyText
 import spam.blocker.ui.widgets.NumberInputBox
@@ -126,29 +125,25 @@ fun Answered() {
         }
     }
 
-    LabeledRow(
-        R.string.answered_number,
+    SettingItem(
+        labelId = R.string.answered_number,
         helpTooltip = balloonTooltip,
-        content = {
-            if (isEnabled && Permission.callLog.isGranted) {
-                GreyButton(
-                    label = PluralStr(inXDay, R.plurals.days),
-                ) {
-                    configTrigger.value = true
-                }
-            }
-            SwitchBox(isEnabled) { isTurningOn ->
-                if (isTurningOn) {
-                    val acknowledged = spf.isWarningAcknowledged
-                    if (acknowledged) {
-                        askForPermission()
-                    } else {
-                        warningTrigger.value = true
-                    }
+        value = if (isEnabled && Permission.callLog.isGranted) PluralStr(inXDay, R.plurals.days) else null,
+        onValueClick = {
+            configTrigger.value = true
+        },
+        checked = isEnabled,
+        onCheckedChange = { isTurningOn ->
+            if (isTurningOn) {
+                val acknowledged = spf.isWarningAcknowledged
+                if (acknowledged) {
+                    askForPermission()
                 } else {
-                    spf.isEnabled = false
-                    isEnabled = false
+                    warningTrigger.value = true
                 }
+            } else {
+                spf.isEnabled = false
+                isEnabled = false
             }
         }
     )

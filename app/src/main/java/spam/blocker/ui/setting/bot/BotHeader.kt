@@ -2,7 +2,6 @@ package spam.blocker.ui.setting.bot
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -159,7 +158,6 @@ fun BotHeader(
 
     LabeledRow(
         labelId = R.string.workflows,
-        modifier = M.clickable{ vm.toggleCollapse(ctx) },
         isCollapsed = vm.listCollapsed.value,
         toggleCollapse = { vm.toggleCollapse(ctx) },
         helpTooltip = Str(R.string.help_workflows),

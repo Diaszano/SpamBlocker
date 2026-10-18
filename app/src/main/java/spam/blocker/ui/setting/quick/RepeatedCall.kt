@@ -16,6 +16,7 @@ import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.ui.M
 import spam.blocker.ui.setting.LabeledRow
+import spam.blocker.ui.setting.SettingItem
 import spam.blocker.ui.widgets.ColumnSpaced
 import spam.blocker.ui.widgets.GreyIcon20
 import spam.blocker.ui.widgets.NumberInputBox
@@ -112,43 +113,41 @@ fun RepeatedCall() {
         }
     )
 
-    LabeledRow(
-        R.string.repeated_call,
+    val value = if (isEnabled && Permission.callLog.isGranted) {
+        if (times == 1) {
+            "$inXMin ${Str(R.string.min)}"
+        } else {
+            "$times / $inXMin ${Str(R.string.min)}"
+        }
+    } else null
+
+    SettingItem(
+        labelId = R.string.repeated_call,
         helpTooltip = Str(R.string.help_repeated_call),
-        content = {
-            if (isEnabled && Permission.callLog.isGranted) {
-                val label = if (times == 1) {
-                    "$inXMin ${Str(R.string.min)}"
-                } else {
-                    "$times / $inXMin ${Str(R.string.min)}"
-                }
-                StrokeButton(
-                    label = label,
-                    color = C.textGrey,
-                ) {
-                    popupTrigger.value = true
-                }
-            }
-            SwitchBox(isEnabled) { isTurningOn ->
-                if (isTurningOn) {
-                    G.permissionChain.ask(
-                        ctx,
-                        listOf(
-                            PermissionWrapper(Permission.callLog),
-                            // For matching different SIM country codes when using multiple SIM cards,
-                            //  for frequent international travellers.
-                            PermissionWrapper(Permission.phoneState, isOptional = true),
-                        )
-                    ) { granted ->
-                        if (granted) {
-                            spf.isEnabled = true
-                            isEnabled = true
-                        }
+        value = value,
+        onValueClick = {
+            popupTrigger.value = true
+        },
+        checked = isEnabled,
+        onCheckedChange = { isTurningOn ->
+            if (isTurningOn) {
+                G.permissionChain.ask(
+                    ctx,
+                    listOf(
+                        PermissionWrapper(Permission.callLog),
+                        // For matching different SIM country codes when using multiple SIM cards,
+                        //  for frequent international travellers.
+                        PermissionWrapper(Permission.phoneState, isOptional = true),
+                    )
+                ) { granted ->
+                    if (granted) {
+                        spf.isEnabled = true
+                        isEnabled = true
                     }
-                } else {
-                    spf.isEnabled = false
-                    isEnabled = false
                 }
+            } else {
+                spf.isEnabled = false
+                isEnabled = false
             }
         }
     )
