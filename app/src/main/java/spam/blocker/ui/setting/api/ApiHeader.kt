@@ -24,6 +24,7 @@ import spam.blocker.ui.widgets.FlowRowSpaced
 import spam.blocker.ui.widgets.GreyIcon
 import spam.blocker.ui.widgets.GreyIcon16
 import spam.blocker.ui.widgets.GreyIcon18
+import spam.blocker.ui.widgets.GreyLabel
 import spam.blocker.ui.widgets.LabelItem
 import spam.blocker.ui.widgets.MenuButton
 import spam.blocker.ui.widgets.Str
@@ -175,7 +176,7 @@ fun ApiSummary(vm: ApiViewModel) {
 
     val enabledApis = vm.apis.filter { it.enabled }
     if (enabledApis.isEmpty()) {
-//        GreyText("N/A")
+        GreyLabel(Str(R.string.none_active))
     } else {
         FlowRowSpaced(4) {
             enabledApis.forEach { api ->

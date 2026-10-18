@@ -9,4 +9,8 @@
     <string name="needs_training" translatable="false">Needs training</string>
     <string name="rcs_unavailable" translatable="false">Not supported</string>
     <string name="global_blocking" translatable="false">Global blocking</string>
+    <string name="history_filters_off" translatable="false">Allowed and blocked filters are off</string>
+    <string name="history_no_matches" translatable="false">No matching records</string>
+    <string name="history_empty" translatable="false">No records</string>
+    <string name="none_active" translatable="false">None active</string>
 </resources>

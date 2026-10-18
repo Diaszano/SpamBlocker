@@ -440,6 +440,7 @@ fun HistoryFabs(
     RowVCenterSpaced(space = 8, modifier = modifier) {
         Fab(
             visible = visible,
+            contentDescription = Str(R.string.setting),
             iconId = R.drawable.ic_settings,
             bgColor = C.infoBlue
         ) {
@@ -471,6 +472,7 @@ fun HistoryFabs(
         }
         Fab(
             visible = visible,
+            contentDescription = Str(R.string.delete),
             iconId = R.drawable.ic_recycle_bin,
             bgColor = C.error
         ) {

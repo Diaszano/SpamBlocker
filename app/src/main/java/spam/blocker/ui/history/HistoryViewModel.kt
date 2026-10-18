@@ -24,16 +24,22 @@ open class HistoryViewModel(
     val records = mutableStateListOf<HistoryRecord>()
     val searchEnabled = mutableStateOf(false)
     val filter = mutableStateOf("")
+    val isLoading = mutableStateOf(true)
 
     fun reload(ctx: Context) {
-        records.clear()
+        isLoading.value = true
+        try {
+            records.clear()
 
-        // Fuzzy search
-        val filter = FuzzyFilter(filter.value)
+            // Fuzzy search
+            val filter = FuzzyFilter(filter.value)
 
-        records.addAll(table.listRecords(ctx).filter {
-            isVisible(ctx, it, filter)
-        })
+            records.addAll(table.listRecords(ctx).filter {
+                isVisible(ctx, it, filter)
+            })
+        } finally {
+            isLoading.value = false
+        }
     }
 
     fun isVisible(

@@ -4,10 +4,14 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,22 +19,42 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.def.Def
 import spam.blocker.ui.M
 import spam.blocker.ui.history.HistoryOptions.historyTimeColors
+import spam.blocker.ui.history.HistoryOptions.showHistoryBlocked
 import spam.blocker.ui.history.HistoryOptions.showHistoryIndicator
+import spam.blocker.ui.history.HistoryOptions.showHistoryPassed
 import spam.blocker.ui.history.HistoryOptions.showHistoryTimeColor
 import spam.blocker.ui.widgets.BgLaunchApp
 import spam.blocker.ui.widgets.LazyScrollbar
 import spam.blocker.ui.widgets.LeftDeleteSwipeWrapper
 import spam.blocker.ui.widgets.SnackBar
+import spam.blocker.ui.widgets.Str
 import spam.blocker.ui.widgets.SwipeInfo
 import spam.blocker.util.Launcher
 import spam.blocker.util.SimUtils
 
+fun historyEmptyMessageRes(
+    passedEnabled: Boolean,
+    blockedEnabled: Boolean,
+    searchEnabled: Boolean,
+    filter: String
+): Int {
+    return when {
+        !passedEnabled && !blockedEnabled -> R.string.history_filters_off
+        searchEnabled && filter.trim().isNotEmpty() -> R.string.history_no_matches
+        else -> R.string.history_empty
+    }
+}
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalFoundationApi::class)
@@ -53,12 +77,35 @@ fun HistoryList(
         mutableStateOf(showHistoryIndicator.value)
     }
 
-    LazyScrollbar(state = lazyState) {
-        IndicatorsWrapper(vm) { indicatorChecker, forceRefreshIndicators ->
-            LazyColumn(
-                state = lazyState,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+    if (vm.records.isEmpty()) {
+        if (!vm.isLoading.value) {
+            val emptyMessageRes = historyEmptyMessageRes(
+                passedEnabled = showHistoryPassed.value,
+                blockedEnabled = showHistoryBlocked.value,
+                searchEnabled = vm.searchEnabled.value,
+                filter = vm.filter.value,
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
             ) {
+                Text(
+                    text = Str(emptyMessageRes),
+                    color = G.palette.textGrey,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    } else {
+        LazyScrollbar(state = lazyState) {
+            IndicatorsWrapper(vm) { indicatorChecker, forceRefreshIndicators ->
+                LazyColumn(
+                    state = lazyState,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
                 itemsIndexed(items = vm.records, key = { _, it -> it.id }) { index, record ->
                     val indicators = remember { mutableStateOf(listOf<Indicator>()) }
 
@@ -156,4 +203,5 @@ fun HistoryList(
             }
         }
     }
+}
 }

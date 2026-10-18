@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import spam.blocker.ui.M
@@ -28,6 +30,7 @@ import spam.blocker.util.Lambda
 @Composable
 fun Fab(
     modifier: Modifier = Modifier,
+    contentDescription: String,
     visible: Boolean,
     text: String? = null,
     iconId: Int,
@@ -53,6 +56,7 @@ fun Fab(
                 .clickable {
                     onClick()
                 }
+                .semantics { this.contentDescription = contentDescription }
         ) {
             Box(
                 modifier = Modifier.wrapContentSize().padding(4.dp),
@@ -65,7 +69,7 @@ fun Fab(
                             .size(iconSize.dp),
                         tint = iconColor,
                         painter = painterResource(id = iconId),
-                        contentDescription = ""
+                        contentDescription = null
                     )
                     text?.let {
                         Text(text = it, color = iconColor, fontSize = 16.sp)

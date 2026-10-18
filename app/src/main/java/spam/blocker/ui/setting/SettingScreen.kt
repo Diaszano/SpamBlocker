@@ -181,6 +181,7 @@ fun SettingScreen() {
         fabRow = { positionModifier ->
             Fab(
                 visible = !bottomReached,
+                contentDescription = Str(R.string.title_rule_testing),
                 text = if (alsoShowTestButtonLabel) Str(R.string.title_rule_testing) else null,
                 iconId = R.drawable.ic_tube,
                 iconColor = White,
