@@ -8,4 +8,5 @@
     <string name="behavior" translatable="false">Behavior</string>
     <string name="needs_training" translatable="false">Needs training</string>
     <string name="rcs_unavailable" translatable="false">Not supported</string>
+    <string name="global_blocking" translatable="false">Global blocking</string>
 </resources>

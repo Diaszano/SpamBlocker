@@ -72,14 +72,6 @@ fun GloballyEnabled() {
     val spfGlobal = spf.Global(ctx)
 
     var collapsed by remember { mutableStateOf(spfGlobal.isCollapsed) }
-    fun expand() {
-        collapsed = false
-        spfGlobal.isCollapsed = false
-    }
-    fun collapse() {
-        collapsed = true
-        spfGlobal.isCollapsed = true
-    }
     fun toggleCollapse() {
         collapsed = !collapsed
         spfGlobal.isCollapsed = collapsed
@@ -159,15 +151,8 @@ fun GloballyEnabled() {
                         }
                     }
                     SwitchBox(G.globallyEnabled.value) { enabled ->
-                        spfGlobal.isGloballyEnabled = enabled
-                        G.globallyEnabled.value = enabled
-                        if (enabled) {
-                            if (!G.callEnabled.value && !G.smsEnabled.value) {
-                                expand()
-                            }
-                        } else {
-                            collapse()
-                        }
+                        setGlobalEnabled(ctx, enabled)
+                        collapsed = spfGlobal.isCollapsed
                     }
                 }
             )
