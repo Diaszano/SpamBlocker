@@ -12,8 +12,8 @@ Material 3 serve apenas como referência para papéis de cor, tipografia, estado
 
 ## Escopo e limites
 
-- Alterar somente `app/src/main/java/spam/blocker/ui/` e `app/src/main/res/`. Manter intactos `db/`, `service/`, lógica de regras e formato de preferências.
-- Reutilizar as dependências e os recursos existentes. Nenhuma dependência nova. Não introduzir APIs Compose alpha ou experimentais que o projeto ainda não use; conferir assinaturas na versão do BOM antes da implementação.
+- Alterar código de produto somente em `app/src/main/java/spam/blocker/ui/` e `app/src/main/res/`. Manter intactos `db/`, `service/`, lógica de regras e formato de preferências.
+- Reutilizar as dependências e os recursos existentes. A única exceção aprovada é adicionar os artefatos oficiais `androidx.compose.ui:ui-tooling-preview` e `androidx.compose.ui:ui-tooling` em `app/build.gradle.kts` e `gradle/libs.versions.toml`: o primeiro permite compilar `@Preview` e o segundo funciona só no debug. Não introduzir outras dependências nem APIs Compose alpha ou experimentais que o projeto ainda não use; conferir assinaturas na versão do BOM antes da implementação.
 - Preservar o estado salvo das seções recolhíveis, listas recolhíveis, opções ocultáveis, cores e demais escolhas do usuário. Não renomear chaves de preferências nem mudar valores padrão de regras.
 - Todo texto novo vai para `res/values` em inglês. Não editar traduções manualmente. Registrar as chaves novas no relatório final. Preferir rótulos curtos.
 - Um commit por tema. Cada commit deve compilar e manter os fluxos existentes utilizáveis.
