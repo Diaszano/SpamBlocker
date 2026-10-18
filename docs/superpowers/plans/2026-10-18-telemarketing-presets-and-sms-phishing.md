@@ -30,7 +30,7 @@
 - Produces: `object RulePresets { fun getNumberPresets(): List<RulePreset>; fun getContentPresets(): List<RulePreset> }`
 - `data class RulePreset(val nameRes: Int, val pattern: String, val isBlacklist: Boolean, val flags: Int, val description: String)`
 
-- [ ] **Step 1: Write unit test for preset regex patterns**
+- [x] **Step 1: Write unit test for preset regex patterns**
 
 ```kotlin
 package spam.blocker.service.checker
@@ -57,21 +57,21 @@ class RulePresetsTest {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.service.checker.RulePresetsTest"`
 Expected: FAIL (unresolved reference `RulePresets`)
 
-- [ ] **Step 3: Implement `RulePresets.kt` and add Preset picker in `EditRegexDialog.kt`**
+- [x] **Step 3: Implement `RulePresets.kt` and add Preset picker in `EditRegexDialog.kt`**
 
 Add preset definitions and a compact "Presets" chip/button in `EditRegexDialog` that populates `pattern`, `patternFlags`, and `description`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.service.checker.RulePresetsTest"`
 Expected: PASS
 
-- [ ] **Step 5: Verify build & commit**
+- [x] **Step 5: Verify build & commit**
 
 Run: `./gradlew assembleDebug lint`
 Commit: `feat: add telemarketing and link detection rule presets`

@@ -15,4 +15,8 @@
     <string name="none_active" translatable="false">None active</string>
     <string name="block_prefix" translatable="false">Block prefix / range</string>
     <string name="blocked_last_7_days" translatable="false">Blocked past 7 days: %d</string>
+    <string name="rule_presets" translatable="false">Presets</string>
+    <string name="preset_br_telemarketing" translatable="false">Brazil Telemarketing &amp; Debt (0303/0304)</string>
+    <string name="preset_suspicious_url" translatable="false">Suspicious links &amp; URL shorteners</string>
+    <string name="preset_satellite_toll" translatable="false">Satellite &amp; Premium Rate (+881/882...)</string>
 </resources>

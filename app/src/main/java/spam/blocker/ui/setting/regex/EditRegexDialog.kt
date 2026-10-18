@@ -35,6 +35,8 @@ import spam.blocker.ui.widgets.DividerItem
 import spam.blocker.ui.widgets.DropdownWrapper
 import spam.blocker.ui.widgets.IMenuItem
 import spam.blocker.ui.widgets.LabelItem
+import spam.blocker.service.checker.RulePresets
+import spam.blocker.ui.widgets.MenuButton
 import spam.blocker.ui.widgets.PopupDialog
 import spam.blocker.ui.widgets.PopupSize
 import spam.blocker.ui.widgets.RowVCenterSpaced
@@ -143,6 +145,35 @@ fun EditRegexDialog(
         popupSize = PopupSize(maxWidthPercentage = 0.9f, minWidthDp = 340, maxWidthDp = 600),
         buttons = {
             RowVCenterSpaced(12) {
+                val presets = remember(forType) {
+                    when (forType) {
+                        ForNumber -> RulePresets.getNumberPresets()
+                        ForSms -> RulePresets.getContentPresets()
+                        else -> emptyList()
+                    }
+                }
+                if (presets.isNotEmpty()) {
+                    val presetMenuItems = remember(presets) {
+                        presets.map { preset ->
+                            LabelItem(
+                                label = ctx.getString(preset.titleRes),
+                                tooltip = preset.description,
+                            ) { menuExpanded ->
+                                state.pattern.value = preset.pattern
+                                state.patternFlags.intValue = preset.flags
+                                state.whiteOrBlack.intValue = if (preset.isBlacklist) 1 else 0
+                                state.description.value = preset.description
+                                menuExpanded.value = false
+                            }
+                        }
+                    }
+                    MenuButton(
+                        label = Str(R.string.rule_presets),
+                        items = presetMenuItems,
+                        color = C.textGrey,
+                    )
+                }
+
                 // Delete
                 if (showDeleteButton) {
                     StrokeButton(
