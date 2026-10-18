@@ -19,13 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.ui.setting.LabeledRow
+import spam.blocker.ui.setting.SettingItem
 import spam.blocker.ui.widgets.ColorPickerButton
 import spam.blocker.ui.widgets.FloatingWindow
 import spam.blocker.ui.widgets.GreyIcon16
 import spam.blocker.ui.widgets.GreyText
 import spam.blocker.ui.widgets.PopupDialog
 import spam.blocker.ui.widgets.PopupSize
-import spam.blocker.ui.widgets.RowVCenterSpaced
 import spam.blocker.ui.widgets.Str
 import spam.blocker.ui.widgets.StrInputBox
 import spam.blocker.ui.widgets.StrokeButton
@@ -177,48 +177,36 @@ fun CallerID() {
 
     var isEnabled by remember { mutableStateOf(spf.isEnabled && Permission.phoneState.isGranted && Permission.showOverlay.isGranted) }
 
-    LabeledRow(
-        R.string.caller_id,
+    val trigger = remember { mutableStateOf(false) }
+    ConfigDialog(trigger)
+
+    SettingItem(
+        labelId = R.string.caller_id,
         helpTooltip = Str(R.string.help_caller_id),
-        content = {
-            val C = G.palette
-            RowVCenterSpaced(4) {
-                val trigger = remember { mutableStateOf(false) }
-                ConfigDialog(trigger)
-
-                if (isEnabled) {
-
-                    // Preview button
-                    StrokeButton(
-                        label = Str(R.string.preview),
-                        color = C.textGrey,
-                    ) {
-                        showCallerIdWindow(ctx)
-
-                        trigger.value = true
+        value = if (isEnabled) Str(R.string.preview) else null,
+        onValueClick = {
+            showCallerIdWindow(ctx)
+            trigger.value = true
+        },
+        checked = isEnabled,
+        onCheckedChange = { isTurningOn ->
+            if (isTurningOn) {
+                G.permissionChain.ask(
+                    ctx,
+                    listOf(
+                        PermissionWrapper(Permission.showOverlay),
+                        // Permission.phoneState is needed to close the floating dialog when the call gets answered or rejected.
+                        PermissionWrapper(Permission.phoneState),
+                    )
+                ) { granted ->
+                    if (granted) {
+                        isEnabled = true
+                        spf.isEnabled = true
                     }
                 }
-
-                SwitchBox(isEnabled) { isTurningOn ->
-                    if (isTurningOn) {
-                        G.permissionChain.ask(
-                            ctx,
-                            listOf(
-                                PermissionWrapper(Permission.showOverlay),
-                                // Permission.phoneState is needed to close the floating dialog when the call gets answered or rejected.
-                                PermissionWrapper(Permission.phoneState),
-                            )
-                        ) { granted ->
-                            if (granted) {
-                                isEnabled = true
-                                spf.isEnabled = true
-                            }
-                        }
-                    } else {
-                        isEnabled = false
-                        spf.isEnabled = false
-                    }
-                }
+            } else {
+                isEnabled = false
+                spf.isEnabled = false
             }
         }
     )

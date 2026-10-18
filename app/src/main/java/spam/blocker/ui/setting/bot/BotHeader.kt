@@ -2,7 +2,6 @@ package spam.blocker.ui.setting.bot
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ import spam.blocker.ui.widgets.ConfigImportDialog
 import spam.blocker.ui.widgets.DividerItem
 import spam.blocker.ui.widgets.FlowRowSpaced
 import spam.blocker.ui.widgets.GreyIcon
+import spam.blocker.ui.widgets.GreyLabel
 import spam.blocker.ui.widgets.LabelItem
 import spam.blocker.ui.widgets.MenuButton
 import spam.blocker.ui.widgets.Str
@@ -159,7 +159,6 @@ fun BotHeader(
 
     LabeledRow(
         labelId = R.string.workflows,
-        modifier = M.clickable{ vm.toggleCollapse(ctx) },
         isCollapsed = vm.listCollapsed.value,
         toggleCollapse = { vm.toggleCollapse(ctx) },
         helpTooltip = Str(R.string.help_workflows),
@@ -184,7 +183,7 @@ fun BotSummary(vm: BotViewModel) {
 
     val enabledBots = vm.bots.filter { it.trigger.isActivated() }
     if (enabledBots.isEmpty()) {
-//        GreyText("N/A")
+        GreyLabel(Str(R.string.none_active))
     } else {
         FlowRowSpaced(4) {
             enabledBots.forEach { bot ->

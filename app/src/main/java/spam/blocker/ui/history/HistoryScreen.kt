@@ -14,7 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
+import spam.blocker.G
+import spam.blocker.R
 import spam.blocker.ui.M
+import spam.blocker.ui.setting.SettingItem
+import spam.blocker.ui.setting.setGlobalEnabled
 import spam.blocker.ui.widgets.FabWrapper
 import spam.blocker.ui.widgets.SearchBox
 import spam.blocker.util.LockedDebouncer
@@ -78,6 +83,7 @@ fun HistoryScreen(
         }
     ) {
         Column(modifier = M.padding(8.dp, 8.dp, 8.dp, 2.dp)) {
+            HistoryHeader(vm = vm)
             // Use a Debouncer here as there could be LOTS of history records.
             val debouncer = remember { LockedDebouncer() }
             SearchBox(vm.searchEnabled, vm.filter) {
@@ -91,4 +97,20 @@ fun HistoryScreen(
             )
         }
     }
+}
+
+@Composable
+fun HistoryHeader(
+    vm: HistoryViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val ctx = LocalContext.current
+    SettingItem(
+        labelId = R.string.global_blocking,
+        modifier = modifier,
+        checked = G.globallyEnabled.value,
+        onCheckedChange = { enabled ->
+            setGlobalEnabled(ctx, enabled)
+        }
+    )
 }

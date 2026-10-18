@@ -12,8 +12,8 @@ import androidx.compose.ui.platform.LocalContext
 import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.ui.setting.LabeledRow
+import spam.blocker.ui.setting.SettingItem
 import spam.blocker.ui.widgets.DurationButton
-import spam.blocker.ui.widgets.GreyButton
 import spam.blocker.ui.widgets.GreyIcon20
 import spam.blocker.ui.widgets.PluralStr
 import spam.blocker.ui.widgets.PopupDialog
@@ -91,41 +91,41 @@ fun Dialed() {
         }
     }
 
-    LabeledRow(
-        R.string.dialed_number,
+    val value = if (isEnabled && Permission.callLog.isGranted) {
+        if (!always) {
+            PluralStr(inXDay, R.plurals.days)
+        } else {
+            Str(R.string.all_time)
+        }
+    } else null
+
+    SettingItem(
+        labelId = R.string.dialed_number,
         helpTooltip = balloonTooltip,
-        content = {
-            if (isEnabled && Permission.callLog.isGranted) {
-                GreyButton(
-                    label = if (!always) {
-                        PluralStr(inXDay, R.plurals.days)
-                    } else {
-                        Str(R.string.all_time)
+        value = value,
+        onValueClick = {
+            popupTrigger.value = true
+        },
+        checked = isEnabled,
+        onCheckedChange = { isTurningOn ->
+            if (isTurningOn) {
+                G.permissionChain.ask(
+                    ctx,
+                    listOf(
+                        PermissionWrapper(Permission.callLog),
+                        // For matching different SIM country codes when using multiple SIM cards,
+                        //  for frequent international travelers.
+                        PermissionWrapper(Permission.phoneState, isOptional =  true),
+                    )
+                ) { granted ->
+                    if (granted) {
+                        spf.isEnabled = true
+                        isEnabled = true
                     }
-                ) {
-                    popupTrigger.value = true
                 }
-            }
-            SwitchBox(isEnabled) { isTurningOn ->
-                if (isTurningOn) {
-                    G.permissionChain.ask(
-                        ctx,
-                        listOf(
-                            PermissionWrapper(Permission.callLog),
-                            // For matching different SIM country codes when using multiple SIM cards,
-                            //  for frequent international travelers.
-                            PermissionWrapper(Permission.phoneState, isOptional =  true),
-                        )
-                    ) { granted ->
-                        if (granted) {
-                            spf.isEnabled = true
-                            isEnabled = true
-                        }
-                    }
-                } else {
-                    spf.isEnabled = false
-                    isEnabled = false
-                }
+            } else {
+                spf.isEnabled = false
+                isEnabled = false
             }
         }
     )

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,14 +72,6 @@ fun GloballyEnabled() {
     val spfGlobal = spf.Global(ctx)
 
     var collapsed by remember { mutableStateOf(spfGlobal.isCollapsed) }
-    fun expand() {
-        collapsed = false
-        spfGlobal.isCollapsed = false
-    }
-    fun collapse() {
-        collapsed = true
-        spfGlobal.isCollapsed = true
-    }
     fun toggleCollapse() {
         collapsed = !collapsed
         spfGlobal.isCollapsed = collapsed
@@ -158,15 +151,8 @@ fun GloballyEnabled() {
                         }
                     }
                     SwitchBox(G.globallyEnabled.value) { enabled ->
-                        spfGlobal.isGloballyEnabled = enabled
-                        G.globallyEnabled.value = enabled
-                        if (enabled) {
-                            if (!G.callEnabled.value && !G.smsEnabled.value) {
-                                expand()
-                            }
-                        } else {
-                            collapse()
-                        }
+                        setGlobalEnabled(ctx, enabled)
+                        collapsed = spfGlobal.isCollapsed
                     }
                 }
             )
@@ -252,7 +238,12 @@ fun GloballyEnabled() {
                         labelId = R.string.rcs,
                         helpTooltip = Str(R.string.help_rcs_message),
                         color = C.disabled,
-                    ) {}
+                    ) {
+                        Text(
+                            text = Str(R.string.rcs_unavailable),
+                            color = C.disabled,
+                        )
+                    }
                 }
             }
         }

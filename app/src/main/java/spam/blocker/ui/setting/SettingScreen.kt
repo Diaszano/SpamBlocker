@@ -4,14 +4,18 @@ import android.view.ViewTreeObserver
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,7 +112,7 @@ import spam.blocker.util.Lambda
 import spam.blocker.util.Util.isFreshInstall
 import spam.blocker.util.spf
 
-const val SettingRowMinHeight = 40
+const val SettingRowMinHeight = 48
 
 @Composable
 fun SettingScreen() {
@@ -175,6 +181,7 @@ fun SettingScreen() {
         fabRow = { positionModifier ->
             Fab(
                 visible = !bottomReached,
+                contentDescription = Str(R.string.title_rule_testing),
                 text = if (alsoShowTestButtonLabel) Str(R.string.title_rule_testing) else null,
                 iconId = R.drawable.ic_tube,
                 iconColor = White,
@@ -213,20 +220,24 @@ fun SettingScreen() {
                     },
                     content = {
                         Column {
+                            QuickSettingHeader(R.string.signals, isFirst = true)
                             Contacts()
                             Stir()
                             SpamDB()
                             LocalAI()
+
+                            QuickSettingHeader(R.string.exceptions)
                             RepeatedCall()
                             Dialed()
                             Answered()
+
+                            QuickSettingHeader(R.string.context_rules)
                             OffTime()
                             EmergencySituation()
                             RecentApps()
                             MeetingMode()
 
-                            HorizontalDivider(thickness = 1.dp, color = G.palette.background.slightDiff())
-
+                            QuickSettingHeader(R.string.behavior)
                             BlockType()
                             Notification()
                             CallerID()
@@ -411,12 +422,32 @@ fun SettingScreen() {
 
 
 @Composable
+fun QuickSettingHeader(
+    labelId: Int,
+    modifier: Modifier = Modifier,
+    isFirst: Boolean = false,
+) {
+    Text(
+        text = stringResource(id = labelId),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(top = if (isFirst) 4.dp else 12.dp, bottom = 4.dp)
+            .semantics { heading() },
+        fontSize = 13.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
 fun SettingRow(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit,
 ) {
     RowVCenter(
         modifier = modifier
+            .fillMaxWidth()
             .heightIn(min = SettingRowMinHeight.dp)
             .padding(vertical = 2.dp)
     ) {
@@ -433,10 +464,9 @@ fun SettingLabel(
     Text(
         text = stringResource(id = labelId),
         modifier = modifier,
-        maxLines = 1,
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
-        color = color ?: G.palette.infoBlue,
+        color = color ?: MaterialTheme.colorScheme.onSurface,
     )
 }
 
@@ -465,40 +495,43 @@ fun LabeledRow(
 
     SettingRow(
         modifier = modifier
-            .clickable {
-                // 1. expand/collapse
-                if (toggleCollapse != null)
-                    toggleCollapse()
-            }
+            .let { if (toggleCollapse != null) it.clickable(onClick = toggleCollapse) else it }
             .padding(horizontal = paddingHorizontal.dp),
     ) {
-        RowVCenterSpaced(
-            space = 2,
-            modifier = M.wrapContentWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // label
-            if (labelId != null) {
-                SettingLabel(
-                    labelId,
-                    color = color
-                )
-            }
+            Row(
+                modifier = Modifier.weight(1f, fill = false),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                if (labelId != null) {
+                    SettingLabel(
+                        labelId,
+                        modifier = Modifier.weight(1f, fill = false),
+                        color = color,
+                    )
+                }
 
-            // collapsed indicator
-            if (isCollapsed == true) {
-                GreyIcon16(
-                    iconId = R.drawable.ic_dropdown_arrow,
-                )
-            }
+                // collapsed indicator
+                if (isCollapsed == true) {
+                    GreyIcon16(
+                        iconId = R.drawable.ic_dropdown_arrow,
+                    )
+                }
 
-            // balloon tooltip
-            helpTooltip?.let {
-                BalloonQuestionMark(it)
+                // balloon tooltip
+                helpTooltip?.let {
+                    BalloonQuestionMark(it)
+                }
             }
 
             // rest content
             RowVCenter(
-                modifier = M.weight(1f),
+                modifier = Modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.End,
             ) {
                 content()

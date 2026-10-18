@@ -2,7 +2,6 @@ package spam.blocker.ui.setting.api
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ import spam.blocker.ui.widgets.FlowRowSpaced
 import spam.blocker.ui.widgets.GreyIcon
 import spam.blocker.ui.widgets.GreyIcon16
 import spam.blocker.ui.widgets.GreyIcon18
+import spam.blocker.ui.widgets.GreyLabel
 import spam.blocker.ui.widgets.LabelItem
 import spam.blocker.ui.widgets.MenuButton
 import spam.blocker.ui.widgets.Str
@@ -150,7 +150,6 @@ fun ApiHeader(
 
     LabeledRow(
         labelId = if (vm.forType == Def.ForApiQuery) R.string.query_api else R.string.report_api,
-        modifier = M.clickable { vm.toggleCollapse(ctx) },
         isCollapsed = vm.listCollapsed.value,
         toggleCollapse = { vm.toggleCollapse(ctx) },
         helpTooltip = if (vm.forType == Def.ForApiQuery)
@@ -177,7 +176,7 @@ fun ApiSummary(vm: ApiViewModel) {
 
     val enabledApis = vm.apis.filter { it.enabled }
     if (enabledApis.isEmpty()) {
-//        GreyText("N/A")
+        GreyLabel(Str(R.string.none_active))
     } else {
         FlowRowSpaced(4) {
             enabledApis.forEach { api ->

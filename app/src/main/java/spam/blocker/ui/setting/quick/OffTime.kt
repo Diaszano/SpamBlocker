@@ -10,8 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import spam.blocker.G
 import spam.blocker.R
-import spam.blocker.ui.setting.LabeledRow
-import spam.blocker.ui.widgets.GreyButton
+import spam.blocker.ui.setting.SettingItem
 import spam.blocker.ui.widgets.GreyIcon18
 import spam.blocker.ui.widgets.Str
 import spam.blocker.ui.widgets.StrokeButton
@@ -49,23 +48,15 @@ fun OffTime() {
             eMin = eM
         }
     }
-    LabeledRow(
-        R.string.off_time,
+    SettingItem(
+        labelId = R.string.off_time,
         helpTooltip = Str(R.string.help_off_time),
-        content = {
-            if (isEnabled) {
-                GreyButton(
-                    label = timeRangeStr(
-                        ctx, sHour, sMin, eHour, eMin
-                    ),
-                ) {
-                    popupTrigger.value = true
-                }
-            }
-            SwitchBox(isEnabled) { isTurningOn ->
-                spf.isEnabled = isTurningOn
-                isEnabled = isTurningOn
-            }
+        value = if (isEnabled) timeRangeStr(ctx, sHour, sMin, eHour, eMin) else null,
+        onValueClick = { popupTrigger.value = true },
+        checked = isEnabled,
+        onCheckedChange = { isTurningOn ->
+            spf.isEnabled = isTurningOn
+            isEnabled = isTurningOn
         }
     )
 }
