@@ -40,9 +40,7 @@ data class PopupSize(
     val maxWidthDp: Int = 600,
     val maxWidthPercentage: Float = 0.9f,
 ) {
-    fun minWidth(): Float {
-        return minWidthDp.toFloat()
-    }
+    fun minWidth(screenWidthDp: Float): Float = min(minWidthDp.toFloat(), maxWidth(screenWidthDp))
     fun maxWidth(screenWidthDp: Float): Float {
         return min(
             maxWidthDp.toFloat(),
@@ -90,14 +88,15 @@ fun PopupDialog(
 
             val C = G.palette
             val scrollState = rememberScrollState()
+            val screenWidth = screenWidthDp()
 
             Card(
                 modifier = M
                     .maxScreenHeight(0.9f)
                     .wrapContentWidth()
                     .widthIn(
-                        min = popupSize?.minWidth()?.dp ?: Dp.Unspecified,
-                        max = popupSize?.maxWidth(screenWidthDp())?.dp ?: Dp.Unspecified,
+                        min = popupSize?.minWidth(screenWidth)?.dp ?: Dp.Unspecified,
+                        max = popupSize?.maxWidth(screenWidth)?.dp ?: Dp.Unspecified,
                     )
                     .imePadding(), // preserve padding for IME, show the scroll bar when IME appears
                 border = BorderStroke(1.dp, color = C.dialogBg.lighten(0.1f)),
