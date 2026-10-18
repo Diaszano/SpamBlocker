@@ -104,11 +104,11 @@ fun Section(
                             color = titleColor,
                             lineHeight = 16.sp,
                         )
-//                        if (isCollapsed?.value == true) {
-//                            GreyIcon16(
-//                                iconId = R.drawable.ic_dropdown_arrow,
-//                            )
-//                        }
+                        if (isCollapsed != null) {
+                            GreyIcon16(
+                                iconId = if (isCollapsed.value) R.drawable.ic_right_arrow else R.drawable.ic_dropdown_arrow,
+                            )
+                        }
                     }
                 }
             }
