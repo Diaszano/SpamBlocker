@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="accessibility_help">Help</string>
     <string name="section_collapsed" translatable="false">Collapsed</string>
     <string name="section_expanded" translatable="false">Expanded</string>
     <string name="signals" translatable="false">Signals</string>

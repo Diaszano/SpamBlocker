@@ -3,6 +3,8 @@ package spam.blocker.ui.widgets
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import spam.blocker.G
@@ -124,18 +129,23 @@ fun BalloonWrapper(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BalloonQuestionMark(tooltip: String, size: Int = 18) {
+    val helpLabel = stringResource(R.string.accessibility_help)
     BalloonWrapper(
         tooltip = tooltip,
     ) { tooltipState ->
         val scope = rememberCoroutineScope()
-        ResImage(
-            R.drawable.ic_question_circle, G.palette.disabled, M
-                .width(size.dp)
-                .clickable { // put before `.padding` for larger clicking area
+        Box(
+            modifier = Modifier
+                .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                .clickable {
                     scope.launch {
                         tooltipState.show()
                     }
                 }
-        )
+                .semantics { contentDescription = helpLabel },
+            contentAlignment = androidx.compose.ui.Alignment.Center,
+        ) {
+            ResImage(R.drawable.ic_question_circle, G.palette.disabled, M.width(size.dp))
+        }
     }
 }

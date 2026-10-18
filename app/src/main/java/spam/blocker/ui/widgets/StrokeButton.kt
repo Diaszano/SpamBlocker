@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -71,27 +72,29 @@ fun Button(
 
     Box(
         modifier = modifier
-            .heightIn(min = BUTTON_H.dp)
-            .border(
-                width = borderWidth,
-                color = if (enabled) borderColor else C.disabled,
-                shape = shape
-            )
-            .clip(RoundedCornerShape(BUTTON_CORNER_RADIUS.dp))
-            .background(backgroundColor)
-
+            .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
             .thenIf(enabled) {
                 combinedClickable(
                     onClick = { onClick?.let { it() } },
                     onLongClick = { onLongClick?.invoke() }
                 )
             },
-        propagateMinConstraints = true
+        contentAlignment = Alignment.Center
     ) {
-        RowCenter(
-            Modifier.padding(contentPadding),
+        Box(
+            modifier = Modifier
+                .heightIn(min = BUTTON_H.dp)
+                .border(
+                    width = borderWidth,
+                    color = if (enabled) borderColor else C.disabled,
+                    shape = shape
+                )
+                .clip(RoundedCornerShape(BUTTON_CORNER_RADIUS.dp))
+                .background(backgroundColor)
         ) {
-            content()
+            RowCenter(Modifier.padding(contentPadding)) {
+                content()
+            }
         }
     }
 }
@@ -110,7 +113,7 @@ fun StrokeButton(
     onClick: Lambda? = null,
 ) {
     Button(
-        modifier = modifier.heightIn(min = BUTTON_H.dp),
+        modifier = modifier,
         enabled = enabled,
         onLongClick = onLongClick,
         contentPadding = contentPadding,
