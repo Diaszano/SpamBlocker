@@ -74,7 +74,7 @@ abstract class BasicTable<T>(
         return db.insert(tableName, null, toContentValues(item, includeId = false))
     }
 
-    fun addWithId(ctx: Context, item: T) {
+    open fun addWithId(ctx: Context, item: T) {
         val db = Db.getInstance(ctx).writableDatabase
         db.insert(tableName, null, toContentValues(item, includeId = true))
     }

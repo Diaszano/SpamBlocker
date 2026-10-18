@@ -1,6 +1,7 @@
 package spam.blocker.ui.setting.regex
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -38,6 +39,7 @@ import spam.blocker.Events
 import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.db.RegexRule
+import spam.blocker.db.RegexTable
 import spam.blocker.db.ruleTableForType
 import spam.blocker.def.Def.ForNumber
 import spam.blocker.def.Def.ForQuickCopy
@@ -281,14 +283,6 @@ fun RegexList(
     )
 
 
-    // Suggest to swipe instead of "Delete Rule" menu item
-    val suggestSwipeToDelTrigger = remember { mutableStateOf(false) }
-    PopupDialog(
-        trigger = suggestSwipeToDelTrigger,
-    ) {
-        HtmlText(Str(R.string.suggest_to_swipe))
-    }
-
     val exportTrigger = remember { mutableStateOf(false) }
     if (exportTrigger.value) {
         ConfigExportDialog(
@@ -333,8 +327,7 @@ fun RegexList(
                     }
 
                     3 -> { // delete a rule
-                        // Show prompt for swipe right
-                        suggestSwipeToDelTrigger.value = true
+                        deleteRule(ctx, forType, clickedRule.value, vm.rules, coroutine)
                     }
                     4 -> { // delete duplicated rules
                         confirmDeleteDuplicated.value = true
@@ -424,26 +417,7 @@ fun RegexItem(
         LeftDeleteSwipeWrapper(
             left = SwipeInfo(
                 onSwipe = {
-                    val index = ruleList.indexOfFirst { it.id == rule.id  }
-                    val ruleToDel = ruleList[index]
-
-                    val table = ruleTableForType(forType)
-
-                    // 1. delete from db
-                    table.deleteById(ctx, ruleToDel.id)
-
-                    // 2. remove from ArrayList
-                    ruleList.removeAt(index)
-
-                    // 3. show snackbar
-                    SnackBar.show(
-                        coroutineScope,
-                        ruleToDel.pattern,
-                        ctx.getString(R.string.undelete),
-                    ) {
-                        table.addWithId(ctx, ruleToDel)
-                        ruleList.add(index, ruleToDel)
-                    }
+                    deleteRule(ctx, forType, rule, ruleList, coroutineScope)
                 }
             )
         ) {
@@ -463,5 +437,44 @@ fun RegexItem(
                     )
             )
         }
+    }
+}
+
+internal fun deleteRule(
+    ctx: Context,
+    forType: Int,
+    rule: RegexRule,
+    ruleList: SnapshotStateList<RegexRule>,
+    coroutineScope: CoroutineScope,
+    table: RegexTable = ruleTableForType(forType),
+    actionLabel: String = try { ctx.getString(R.string.undelete) } catch (_: Throwable) { "Undelete" },
+    snackbarHandler: ((String, String, () -> Unit) -> Unit)? = null,
+) {
+    val index = ruleList.indexOfFirst { it.id == rule.id }
+    if (index == -1) return
+    val ruleToDel = ruleList[index]
+
+    // 1. delete from db
+    table.deleteById(ctx, ruleToDel.id)
+
+    // 2. remove from list
+    ruleList.removeAt(index)
+
+    // 3. show snackbar with undo
+    val undoAction = {
+        table.addWithId(ctx, ruleToDel)
+        val insertIndex = index.coerceAtMost(ruleList.size)
+        ruleList.add(insertIndex, ruleToDel)
+    }
+
+    if (snackbarHandler != null) {
+        snackbarHandler(ruleToDel.pattern, actionLabel, undoAction)
+    } else {
+        SnackBar.show(
+            coroutineScope,
+            ruleToDel.pattern,
+            actionLabel,
+            undoAction,
+        )
     }
 }
