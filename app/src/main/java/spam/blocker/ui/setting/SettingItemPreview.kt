@@ -3,6 +3,7 @@ package spam.blocker.ui.setting
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -22,7 +23,7 @@ private fun SettingItemPreview() {
     G.palette = spf.Palette(LocalContext.current)
     var checked by remember { mutableStateOf(true) }
     var expanded by remember { mutableStateOf(false) }
-    var minutes by remember { mutableStateOf(5) }
+    var minutes by remember { mutableIntStateOf(5) }
     AppTheme {
         Column {
             SettingItem(labelId = R.string.repeated_call, value = "$minutes ${stringResource(R.string.min)}", onValueClick = { minutes = if (minutes == 5) 10 else 5 }, checked = checked, onCheckedChange = { checked = it })
