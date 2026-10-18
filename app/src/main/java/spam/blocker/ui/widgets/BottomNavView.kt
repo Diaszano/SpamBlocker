@@ -26,12 +26,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
 import spam.blocker.ui.M
 import spam.blocker.ui.theme.White
+import spam.blocker.ui.theme.badgeContentColor
 import spam.blocker.util.Lambda1
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -108,6 +113,10 @@ fun BottomBar(vm: BottomBarViewModel) {
                             .width(itemWidth.dp)
                             .background(C.dialogBg)
                             .padding(vertical = 4.dp)
+                            .semantics {
+                                selected = tab.isSelected.value
+                                role = Role.Tab
+                            }
                             .clickable {
                                 val currentRoute = vm.tabItems.firstOrNull { it.isSelected.value }?.route
 
@@ -132,16 +141,12 @@ fun BottomBar(vm: BottomBarViewModel) {
                         BadgedBox(
                             badge = {
                                 badgeText?.let {
-                                    CompositionLocalProvider( // lock the sim number size regardless of system font scaling
-                                        LocalDensity provides Density(density = LocalDensity.current.density, fontScale = 1f)
+                                    Badge(
+                                        modifier = M.offset(x = 8.dp, y = (-2).dp),
+                                        containerColor = C.error,
+                                        contentColor = badgeContentColor(C.error)
                                     ) {
-                                        Badge(
-                                            modifier = M.offset(x = 8.dp, y = (-2).dp),
-                                            containerColor = C.error,
-                                            contentColor = White
-                                        ) {
-                                            Text(text = badgeText)
-                                        }
+                                        Text(text = badgeText)
                                     }
                                 }
                             }

@@ -36,4 +36,5 @@
     <string name="bot_template_auto_backup" translatable="false">Scheduled Auto Backup</string>
     <string name="bot_template_auto_backup_desc" translatable="false">Export an encrypted configuration backup on a schedule.</string>
     <string name="apply" translatable="false">Apply</string>
+    <string name="insufficient_contrast">Insufficient contrast</string>
 </resources>
