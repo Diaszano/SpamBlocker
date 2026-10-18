@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -252,7 +253,12 @@ fun GloballyEnabled() {
                         labelId = R.string.rcs,
                         helpTooltip = Str(R.string.help_rcs_message),
                         color = C.disabled,
-                    ) {}
+                    ) {
+                        Text(
+                            text = Str(R.string.rcs_unavailable),
+                            color = C.disabled,
+                        )
+                    }
                 }
             }
         }

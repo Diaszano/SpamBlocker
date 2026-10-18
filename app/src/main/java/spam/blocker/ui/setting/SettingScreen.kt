@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -217,20 +219,24 @@ fun SettingScreen() {
                     },
                     content = {
                         Column {
+                            QuickSettingHeader(R.string.signals, isFirst = true)
                             Contacts()
                             Stir()
                             SpamDB()
                             LocalAI()
+
+                            QuickSettingHeader(R.string.exceptions)
                             RepeatedCall()
                             Dialed()
                             Answered()
+
+                            QuickSettingHeader(R.string.context_rules)
                             OffTime()
                             EmergencySituation()
                             RecentApps()
                             MeetingMode()
 
-                            HorizontalDivider(thickness = 1.dp, color = G.palette.background.slightDiff())
-
+                            QuickSettingHeader(R.string.behavior)
                             BlockType()
                             Notification()
                             CallerID()
@@ -413,6 +419,25 @@ fun SettingScreen() {
     }
 }
 
+
+@Composable
+fun QuickSettingHeader(
+    labelId: Int,
+    modifier: Modifier = Modifier,
+    isFirst: Boolean = false,
+) {
+    Text(
+        text = stringResource(id = labelId),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(top = if (isFirst) 4.dp else 12.dp, bottom = 4.dp)
+            .semantics { heading() },
+        fontSize = 13.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
 
 @Composable
 fun SettingRow(

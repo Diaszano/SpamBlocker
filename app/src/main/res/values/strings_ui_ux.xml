@@ -2,4 +2,10 @@
 <resources>
     <string name="section_collapsed" translatable="false">Collapsed</string>
     <string name="section_expanded" translatable="false">Expanded</string>
+    <string name="signals" translatable="false">Signals</string>
+    <string name="exceptions" translatable="false">Exceptions</string>
+    <string name="context_rules" translatable="false">Context</string>
+    <string name="behavior" translatable="false">Behavior</string>
+    <string name="needs_training" translatable="false">Needs training</string>
+    <string name="rcs_unavailable" translatable="false">Not supported</string>
 </resources>

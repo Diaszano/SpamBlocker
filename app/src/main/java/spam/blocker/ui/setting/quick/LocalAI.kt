@@ -15,8 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
@@ -482,20 +484,27 @@ fun LocalAIButtonText(
     val hamCount = remember(forceRefresh) { BayesTable.count(ctx, false) }
     val spamCount = remember(forceRefresh) { BayesTable.count(ctx, true) }
 
-    RowVCenterSpaced(6) {
-        // Ham
-        RowVCenterSpaced(2) {
-            Text("$hamCount".A(C.textGrey))
-            if (priHam != Bayes.Default_Priority_Ham) {
-                PriorityLabel(priHam)
+    if (hamCount == 0 && spamCount == 0) {
+        Text(
+            text = stringResource(R.string.needs_training),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    } else {
+        RowVCenterSpaced(6) {
+            // Ham
+            RowVCenterSpaced(2) {
+                Text("$hamCount".A(C.textGrey))
+                if (priHam != Bayes.Default_Priority_Ham) {
+                    PriorityLabel(priHam)
+                }
             }
-        }
 
-        // Spam
-        RowVCenterSpaced(2) {
-            Text("$spamCount".A(C.error))
-            if (priSpam != Bayes.Default_Priority_Spam) {
-                PriorityLabel(priSpam)
+            // Spam
+            RowVCenterSpaced(2) {
+                Text("$spamCount".A(C.error))
+                if (priSpam != Bayes.Default_Priority_Spam) {
+                    PriorityLabel(priSpam)
+                }
             }
         }
     }
