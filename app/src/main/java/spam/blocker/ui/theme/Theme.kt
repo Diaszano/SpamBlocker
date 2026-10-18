@@ -12,9 +12,16 @@ fun AppTheme(
 ) {
     MaterialTheme(
         colorScheme = darkColorScheme(
+            primary = G.palette.teal200,
+            secondary = G.palette.infoBlue,
+            tertiary = G.palette.warning,
+            error = G.palette.error,
             background = G.palette.background, // main screen bg
             surface = G.palette.background, // top/bottom systembar
             surfaceContainer = G.palette.dialogBg, // balloon tooltip bg
+            onBackground = G.palette.textGrey,
+            onSurface = G.palette.textGrey,
+            onSurfaceVariant = G.palette.disabled,
         ),
         content = content,
     )

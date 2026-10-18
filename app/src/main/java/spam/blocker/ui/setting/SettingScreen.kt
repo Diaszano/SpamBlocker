@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -106,7 +107,7 @@ import spam.blocker.util.Lambda
 import spam.blocker.util.Util.isFreshInstall
 import spam.blocker.util.spf
 
-const val SettingRowMinHeight = 40
+const val SettingRowMinHeight = 48
 
 @Composable
 fun SettingScreen() {
@@ -433,10 +434,9 @@ fun SettingLabel(
     Text(
         text = stringResource(id = labelId),
         modifier = modifier,
-        maxLines = 1,
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
-        color = color ?: G.palette.infoBlue,
+        color = color ?: MaterialTheme.colorScheme.onSurface,
     )
 }
 
@@ -465,11 +465,7 @@ fun LabeledRow(
 
     SettingRow(
         modifier = modifier
-            .clickable {
-                // 1. expand/collapse
-                if (toggleCollapse != null)
-                    toggleCollapse()
-            }
+            .let { if (toggleCollapse != null) it.clickable(onClick = toggleCollapse) else it }
             .padding(horizontal = paddingHorizontal.dp),
     ) {
         RowVCenterSpaced(

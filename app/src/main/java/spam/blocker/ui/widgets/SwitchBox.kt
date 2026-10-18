@@ -2,7 +2,7 @@ package spam.blocker.ui.widgets
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import spam.blocker.G
@@ -18,7 +19,6 @@ import spam.blocker.ui.darken
 
 
 private const val Width = 40
-private const val Height = 30
 private const val ThumbRadius = 10
 private const val TrackWidth = Width / 2
 private const val TrackHeight = TrackWidth / 2
@@ -27,7 +27,8 @@ private const val TrackRadius = TrackHeight
 @Composable
 fun SwitchBox(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    modifier: Modifier = Modifier,
+    onCheckedChange: ((Boolean) -> Unit)?,
 ) {
     val C = G.palette
 
@@ -40,9 +41,12 @@ fun SwitchBox(
     val thumbColor = if (checked) C.teal200 else C.disabled
 
     Box(
-        modifier = Modifier
-            .clickable { onCheckedChange(!checked) }
-            .size(width = Width.dp, height = Height.dp),
+        modifier = modifier
+            .let {
+                if (onCheckedChange != null) it.toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+                else it
+            }
+            .size(48.dp),
         contentAlignment = Alignment.Center
     ) {
         // track
