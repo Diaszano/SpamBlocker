@@ -57,7 +57,7 @@ open class SmsReceiver : BroadcastReceiver() {
 
         val spf = spf.Global(ctx)
 
-        if (!spf.isGloballyEnabled) {
+        if (!spf.isGloballyEnabled || spam.blocker.ui.setting.isPaused(ctx)) {
             return
         }
 

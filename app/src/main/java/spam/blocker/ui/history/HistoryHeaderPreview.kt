@@ -41,3 +41,18 @@ private fun SmsHistoryHeaderPreview() {
         }
     }
 }
+
+@Preview(name = "Paused history header compact", widthDp = 320, fontScale = 1.3f, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PausedHistoryHeaderPreview() {
+    val ctx = LocalContext.current
+    G.palette = spf.Palette(ctx)
+    G.globallyEnabled.value = true
+    G.pausedUntil.value = System.currentTimeMillis() + 15 * 60 * 1000L
+
+    AppTheme {
+        Column(modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 2.dp)) {
+            HistoryHeader(vm = G.callVM)
+        }
+    }
+}

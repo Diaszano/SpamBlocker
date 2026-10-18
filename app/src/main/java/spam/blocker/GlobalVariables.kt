@@ -30,6 +30,7 @@ import spam.blocker.util.spf.Palette
 @Immutable
 object G {
     val globallyEnabled : MutableState<Boolean> = mutableStateOf(false)
+    val pausedUntil : MutableState<Long> = mutableStateOf(0L)
     val callEnabled : MutableState<Boolean> = mutableStateOf(false)
     val smsEnabled : MutableState<Boolean> = mutableStateOf(false)
     val dynamicTile0Enabled : MutableState<Boolean> = mutableStateOf(false)
@@ -58,6 +59,7 @@ object G {
         run {
             val spf = spf.Global(ctx)
             globallyEnabled.value = spf.isGloballyEnabled
+            pausedUntil.value = spf.pausedUntil
             callEnabled.value = spf.isCallEnabled && Permission.callScreening.isGranted
             smsEnabled.value = spf.isSmsEnabled && Permission.receiveSMS.isGranted
             palette = Palette(ctx)

@@ -1,6 +1,7 @@
 package spam.blocker.ui.history
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -108,14 +109,65 @@ fun HistoryHeader(
     modifier: Modifier = Modifier,
 ) {
     val ctx = LocalContext.current
+    val C = G.palette
+    val isPaused = G.pausedUntil.value > System.currentTimeMillis()
+    val remainingMinutes = if (isPaused) spam.blocker.ui.setting.PauseHelper.remainingMinutes(G.pausedUntil.value) else 0
+
     Column(modifier = modifier) {
-        SettingItem(
-            labelId = R.string.global_blocking,
-            checked = G.globallyEnabled.value,
-            onCheckedChange = { enabled ->
-                setGlobalEnabled(ctx, enabled)
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            SettingItem(
+                modifier = Modifier.weight(1f),
+                labelId = R.string.global_blocking,
+                checked = G.globallyEnabled.value && !isPaused,
+                onCheckedChange = { enabled ->
+                    setGlobalEnabled(ctx, enabled)
+                }
+            )
+            if (G.globallyEnabled.value && !isPaused) {
+                val pauseItems = remember {
+                    listOf(
+                        spam.blocker.ui.widgets.LabelItem(label = ctx.getString(R.string.pause_15m)) {
+                            spam.blocker.ui.setting.pauseBlocking(ctx, 15 * 60 * 1000L)
+                            it.value = false
+                        },
+                        spam.blocker.ui.widgets.LabelItem(label = ctx.getString(R.string.pause_1h)) {
+                            spam.blocker.ui.setting.pauseBlocking(ctx, 60 * 60 * 1000L)
+                            it.value = false
+                        },
+                        spam.blocker.ui.widgets.LabelItem(label = ctx.getString(R.string.pause_8h)) {
+                            spam.blocker.ui.setting.pauseBlocking(ctx, 8 * 60 * 60 * 1000L)
+                            it.value = false
+                        }
+                    )
+                }
+                spam.blocker.ui.widgets.MenuButton(
+                    label = spam.blocker.ui.widgets.Str(R.string.pause_blocking),
+                    items = pauseItems,
+                    color = C.textGrey,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
             }
-        )
+        }
+        if (isPaused) {
+            spam.blocker.ui.widgets.RowVCenterSpaced(8, modifier = Modifier.padding(start = 12.dp, bottom = 4.dp)) {
+                Text(
+                    text = stringResource(R.string.paused_remaining, remainingMinutes),
+                    color = C.warning,
+                    fontSize = 11.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                spam.blocker.ui.widgets.StrokeButton(
+                    label = spam.blocker.ui.widgets.Str(R.string.resume),
+                    color = C.teal200,
+                ) {
+                    spam.blocker.ui.setting.resumeBlocking(ctx)
+                }
+            }
+        }
         if (vm.weeklyBlockedCount.value > 0) {
             Text(
                 text = stringResource(R.string.blocked_last_7_days, vm.weeklyBlockedCount.value),

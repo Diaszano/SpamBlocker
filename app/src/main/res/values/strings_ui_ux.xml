@@ -19,4 +19,10 @@
     <string name="preset_br_telemarketing" translatable="false">Brazil Telemarketing &amp; Debt (0303/0304)</string>
     <string name="preset_suspicious_url" translatable="false">Suspicious links &amp; URL shorteners</string>
     <string name="preset_satellite_toll" translatable="false">Satellite &amp; Premium Rate (+881/882...)</string>
+    <string name="pause_blocking" translatable="false">Pause</string>
+    <string name="pause_15m" translatable="false">15 minutes</string>
+    <string name="pause_1h" translatable="false">1 hour</string>
+    <string name="pause_8h" translatable="false">8 hours</string>
+    <string name="paused_remaining" translatable="false">Paused (%d min remaining)</string>
+    <string name="resume" translatable="false">Resume</string>
 </resources>

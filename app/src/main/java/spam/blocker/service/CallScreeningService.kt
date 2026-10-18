@@ -148,7 +148,7 @@ class CallScreeningService : CallScreeningService() {
         if (details.callDirection != Details.DIRECTION_INCOMING)
             return
 
-        if (!spf.Global(this).isGloballyEnabled || !spf.Global(this).isCallEnabled) {
+        if (!spf.Global(this).isGloballyEnabled || !spf.Global(this).isCallEnabled || spam.blocker.ui.setting.isPaused(this)) {
             pass(details)
             return
         }
