@@ -14,7 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
 import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.ui.M
@@ -105,12 +108,21 @@ fun HistoryHeader(
     modifier: Modifier = Modifier,
 ) {
     val ctx = LocalContext.current
-    SettingItem(
-        labelId = R.string.global_blocking,
-        modifier = modifier,
-        checked = G.globallyEnabled.value,
-        onCheckedChange = { enabled ->
-            setGlobalEnabled(ctx, enabled)
+    Column(modifier = modifier) {
+        SettingItem(
+            labelId = R.string.global_blocking,
+            checked = G.globallyEnabled.value,
+            onCheckedChange = { enabled ->
+                setGlobalEnabled(ctx, enabled)
+            }
+        )
+        if (vm.weeklyBlockedCount.value > 0) {
+            Text(
+                text = stringResource(R.string.blocked_last_7_days, vm.weeklyBlockedCount.value),
+                color = G.palette.textGrey,
+                fontSize = 11.sp,
+                modifier = Modifier.padding(start = 12.dp, bottom = 2.dp)
+            )
         }
-    )
+    }
 }

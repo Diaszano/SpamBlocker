@@ -86,6 +86,7 @@ fun HistoryContextMenuWrapper(
 
     // trigger of "Add regex rule"/"Edit regex rule"
     val editRuleTrigger = rememberSaveable { mutableStateOf(false) }
+    val blockPrefixTrigger = rememberSaveable { mutableStateOf(false) }
 
     if (editRuleTrigger.value) {
         EditRegexDialog(
@@ -110,6 +111,25 @@ fun HistoryContextMenuWrapper(
                 }
 
                 // rule update event is handled by the dialog
+            }
+        )
+    }
+
+    if (blockPrefixTrigger.value) {
+        val suggestedPattern = spam.blocker.util.PrefixUtils.suggestPrefixPattern(record.peer)
+        EditRegexDialog(
+            trigger = blockPrefixTrigger,
+            initRule = RegexRule().apply {
+                pattern = suggestedPattern
+                patternFlags = Def.FLAG_REGEX_RAW_NUMBER
+                isBlacklist = true
+                priority = 1
+                description = "Block $suggestedPattern"
+            },
+            forType = Def.ForNumber,
+            showDeleteButton = false,
+            onSave = { newRule ->
+                G.NumberRuleVM.table.addNew(ctx, newRule)
             }
         )
     }
@@ -197,6 +217,20 @@ fun HistoryContextMenuWrapper(
                     }
                 ) {
                     editRuleTrigger.value = true
+                },
+
+                // Block Prefix / Range
+                LabelItem(
+                    label = ctx.getString(R.string.block_prefix),
+                    leadingIcon = {
+                        ResIcon(
+                            R.drawable.ic_call_blocked,
+                            modifier = M.size(20.dp),
+                            color = C.error
+                        )
+                    }
+                ) {
+                    blockPrefixTrigger.value = true
                 },
 
                 // Add/Delete in spam database

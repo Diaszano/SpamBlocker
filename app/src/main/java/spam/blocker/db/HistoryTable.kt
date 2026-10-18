@@ -209,6 +209,14 @@ abstract class HistoryTable(
             whereParams = arrayOf(xSecondsAgo.toString(), phone)
         )
     }
+
+    fun countBlockedSince(ctx: Context, sinceMillis: Long): Int {
+        val sql = "SELECT COUNT(*) FROM ${tableName()} WHERE $COLUMN_TIME >= ? AND $COLUMN_RESULT BETWEEN 10 AND 99"
+        val cursor = Db.getInstance(ctx).readableDatabase.rawQuery(sql, arrayOf(sinceMillis.toString()))
+        return cursor.use {
+            if (it.moveToFirst()) it.getInt(0) else 0
+        }
+    }
 }
 
 open class CallTable : HistoryTable(Db.TABLE_CALL)

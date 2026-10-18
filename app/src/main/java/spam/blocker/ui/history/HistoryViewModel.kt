@@ -1,6 +1,7 @@
 package spam.blocker.ui.history
 
 import android.content.Context
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,7 @@ open class HistoryViewModel(
     val searchEnabled = mutableStateOf(false)
     val filter = mutableStateOf("")
     val isLoading = mutableStateOf(true)
+    val weeklyBlockedCount = mutableIntStateOf(0)
 
     fun reload(ctx: Context) {
         isLoading.value = true
@@ -37,6 +39,9 @@ open class HistoryViewModel(
             records.addAll(table.listRecords(ctx).filter {
                 isVisible(ctx, it, filter)
             })
+
+            val sevenDaysAgo = spam.blocker.util.Now.currentMillis() - 7 * 24 * 3600 * 1000L
+            weeklyBlockedCount.value = table.countBlockedSince(ctx, sevenDaysAgo)
         } finally {
             isLoading.value = false
         }
