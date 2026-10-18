@@ -25,4 +25,12 @@
     <string name="pause_8h" translatable="false">8 hours</string>
     <string name="paused_remaining" translatable="false">Paused (%d min remaining)</string>
     <string name="resume" translatable="false">Resume</string>
+    <string name="bot_templates" translatable="false">Templates</string>
+    <string name="bot_template_prune_history" translatable="false">Auto Prune History</string>
+    <string name="bot_template_prune_history_desc" translatable="false">Clean up call and SMS history older than 30 days automatically.</string>
+    <string name="bot_template_webhook_alert" translatable="false">Webhook on Blocked Call</string>
+    <string name="bot_template_webhook_alert_desc" translatable="false">Send an HTTP POST webhook alert whenever an incoming call is blocked.</string>
+    <string name="bot_template_auto_backup" translatable="false">Scheduled Auto Backup</string>
+    <string name="bot_template_auto_backup_desc" translatable="false">Export an encrypted configuration backup on a schedule.</string>
+    <string name="apply" translatable="false">Apply</string>
 </resources>

@@ -115,6 +115,19 @@ fun BotHeader(
         setupDialog?.Compose(setupTrigger)
     }
 
+    val templateTrigger = remember { mutableStateOf(false) }
+    BotTemplateDialog(trigger = templateTrigger) { template ->
+        val newBot = template.factory()
+        val requiredPermissions = newBot.triggerAndActions().map {
+            it.requiredPermissions(ctx)
+        }.flatten()
+        G.permissionChain.ask(ctx, requiredPermissions) { isGranted ->
+            if (isGranted) {
+                addBotToDB(ctx, newBot)
+            }
+        }
+    }
+
     val dropdownItems = remember {
         val ret = mutableListOf(
             LabelItem(
@@ -124,6 +137,12 @@ fun BotHeader(
                 initialBotToEdit.value = Bot()
 
                 customizeTrigger.value = true
+            },
+            LabelItem(
+                label = ctx.getString(R.string.bot_templates),
+                leadingIcon = { GreyIcon(R.drawable.ic_workflow) }
+            ) {
+                templateTrigger.value = true
             },
             LabelItem(
                 label = ctx.getString(R.string.import_),

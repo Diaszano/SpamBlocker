@@ -26,7 +26,7 @@
 - Produces: `object BotTemplates { fun listTemplates(ctx: Context): List<WorkflowTemplate> }`
 - `data class WorkflowTemplate(val titleRes: Int, val descriptionRes: Int, val createWorkflow: (Context) -> Workflow)`
 
-- [ ] **Step 1: Write unit test validating all templates construct valid, serializable workflows**
+- [x] **Step 1: Write unit test validating all templates construct valid, serializable workflows**
 
 ```kotlin
 package spam.blocker.service.bot
@@ -49,14 +49,14 @@ class BotTemplatesTest {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.service.bot.BotTemplatesTest"`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `BotTemplates.kt` with 3 core templates (SpamDB Sync, Telegram Webhook, History Auto-Prune)**
+- [x] **Step 3: Implement `BotTemplates.kt` with 3 core templates (SpamDB Sync, Telegram Webhook, History Auto-Prune)**
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.service.bot.BotTemplatesTest"`
 Expected: PASS
@@ -69,7 +69,7 @@ Expected: PASS
 - Create: `app/src/main/java/spam/blocker/ui/setting/bot/BotTemplateDialog.kt`
 - Modify: `app/src/main/java/spam/blocker/ui/setting/bot/BotHeader.kt`
 
-- [ ] **Step 1: Create `BotTemplateDialog.kt` with compact selection cards and "Apply" action**
-- [ ] **Step 2: Connect template button in `BotHeader.kt` to append selected template into `G.botVM.workflows`**
-- [ ] **Step 3: Add dark 320dp/1.3x preview for `BotTemplateDialog`**
-- [ ] **Step 4: Run `./gradlew assembleDebug lint` and commit: `feat: add preconfigured bot workflow templates`**
+- [x] **Step 1: Create `BotTemplateDialog.kt` with compact selection cards and "Apply" action**
+- [x] **Step 2: Connect template button in `BotHeader.kt` to append selected template into `G.botVM.workflows`**
+- [x] **Step 3: Add dark 320dp/1.3x preview for `BotTemplateDialog`**
+- [x] **Step 4: Run `./gradlew assembleDebug lint` and commit: `feat: add preconfigured bot workflow templates`**
