@@ -140,7 +140,7 @@ abstract class HistoryTable(
         stmt.bindLong(baseIndex + 13, if (item.anythingWrongReporting) 1 else 0)
     }
 
-    fun listRecords(ctx: Context): List<HistoryRecord> {
+    open fun listRecords(ctx: Context): List<HistoryRecord> {
         return listAll(ctx, orderBy = "$COLUMN_TIME DESC")
     }
 
@@ -210,7 +210,7 @@ abstract class HistoryTable(
         )
     }
 
-    fun countBlockedSince(ctx: Context, sinceMillis: Long): Int {
+    open fun countBlockedSince(ctx: Context, sinceMillis: Long): Int {
         val sql = "SELECT COUNT(*) FROM ${tableName()} WHERE $COLUMN_TIME >= ? AND $COLUMN_RESULT BETWEEN 10 AND 99"
         val cursor = Db.getInstance(ctx).readableDatabase.rawQuery(sql, arrayOf(sinceMillis.toString()))
         return cursor.use {

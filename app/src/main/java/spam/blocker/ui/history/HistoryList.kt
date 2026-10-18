@@ -5,7 +5,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -39,6 +44,7 @@ import spam.blocker.ui.widgets.LazyScrollbar
 import spam.blocker.ui.widgets.LeftDeleteSwipeWrapper
 import spam.blocker.ui.widgets.SnackBar
 import spam.blocker.ui.widgets.Str
+import spam.blocker.ui.widgets.StrokeButton
 import spam.blocker.ui.widgets.SwipeInfo
 import spam.blocker.util.Launcher
 import spam.blocker.util.SimUtils
@@ -78,7 +84,42 @@ fun HistoryList(
     }
 
     if (vm.records.isEmpty()) {
-        if (!vm.isLoading.value) {
+        if (vm.isLoading.value) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = Str(R.string.loading),
+                    color = G.palette.textGrey,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        } else if (vm.loadError.value) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = Str(R.string.failed_to_load),
+                    color = G.palette.textGrey,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                StrokeButton(
+                    label = Str(R.string.retry),
+                    color = G.palette.teal200,
+                    onClick = { vm.reload(ctx) }
+                )
+            }
+        } else {
             val emptyMessageRes = historyEmptyMessageRes(
                 passedEnabled = showHistoryPassed.value,
                 blockedEnabled = showHistoryBlocked.value,
@@ -100,7 +141,29 @@ fun HistoryList(
             }
         }
     } else {
-        LazyScrollbar(state = lazyState) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (vm.loadError.value) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = Str(R.string.failed_to_load),
+                        color = G.palette.error,
+                        fontSize = 14.sp
+                    )
+                    StrokeButton(
+                        label = Str(R.string.retry),
+                        color = G.palette.teal200,
+                        onClick = { vm.reload(ctx) }
+                    )
+                }
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                LazyScrollbar(state = lazyState) {
             IndicatorsWrapper(vm) { indicatorChecker, forceRefreshIndicators ->
                 LazyColumn(
                     state = lazyState,
@@ -201,7 +264,9 @@ fun HistoryList(
                     }
                 }
             }
+            }
         }
     }
+}
 }
 }

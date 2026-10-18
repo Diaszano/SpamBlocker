@@ -5,6 +5,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import spam.blocker.db.CallTable
 import spam.blocker.db.HistoryRecord
 import spam.blocker.db.HistoryTable
@@ -21,30 +28,62 @@ import spam.blocker.util.FuzzyFilter
 open class HistoryViewModel(
     val forType: Int,
     val table: HistoryTable,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : ViewModel() {
     val records = mutableStateListOf<HistoryRecord>()
     val searchEnabled = mutableStateOf(false)
     val filter = mutableStateOf("")
     val isLoading = mutableStateOf(true)
+    val loadError = mutableStateOf(false)
     val weeklyBlockedCount = mutableIntStateOf(0)
 
-    fun reload(ctx: Context) {
+    private var reloadCounter = 0
+    var reloadJob: Job? = null
+        internal set
+
+    fun reload(ctx: Context): Job {
+        val token = ++reloadCounter
+        reloadJob?.cancel()
         isLoading.value = true
-        try {
-            records.clear()
+        val job = CoroutineScope(ioDispatcher).launch {
+            try {
+                // Fuzzy search
+                val filter = FuzzyFilter(filter.value)
 
-            // Fuzzy search
-            val filter = FuzzyFilter(filter.value)
+                val newRecords = table.listRecords(ctx).filter {
+                    isVisible(ctx, it, filter)
+                }
 
-            records.addAll(table.listRecords(ctx).filter {
-                isVisible(ctx, it, filter)
-            })
+                val sevenDaysAgo = spam.blocker.util.Now.currentMillis() - 7 * 24 * 3600 * 1000L
+                val count = table.countBlockedSince(ctx, sevenDaysAgo)
 
-            val sevenDaysAgo = spam.blocker.util.Now.currentMillis() - 7 * 24 * 3600 * 1000L
-            weeklyBlockedCount.value = table.countBlockedSince(ctx, sevenDaysAgo)
-        } finally {
-            isLoading.value = false
+                withContext(mainDispatcher) {
+                    if (token == reloadCounter) {
+                        records.clear()
+                        records.addAll(newRecords)
+                        weeklyBlockedCount.intValue = count
+                        loadError.value = false
+                    }
+                }
+            } catch (e: CancellationException) {
+                return@launch
+            } catch (e: Throwable) {
+                withContext(mainDispatcher) {
+                    if (token == reloadCounter) {
+                        loadError.value = true
+                    }
+                }
+            } finally {
+                withContext(mainDispatcher) {
+                    if (token == reloadCounter) {
+                        isLoading.value = false
+                    }
+                }
+            }
         }
+        reloadJob = job
+        return job
     }
 
     fun isVisible(
@@ -89,6 +128,14 @@ open class HistoryViewModel(
     }
 }
 
-class CallViewModel : HistoryViewModel(Def.ForNumber, CallTable())
+class CallViewModel(
+    table: HistoryTable = CallTable(),
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+) : HistoryViewModel(Def.ForNumber, table, ioDispatcher, mainDispatcher)
 
-class SmsViewModel : HistoryViewModel(Def.ForSms, SmsTable())
+class SmsViewModel(
+    table: HistoryTable = SmsTable(),
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+) : HistoryViewModel(Def.ForSms, table, ioDispatcher, mainDispatcher)
