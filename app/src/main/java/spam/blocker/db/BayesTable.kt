@@ -6,6 +6,8 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteStatement
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import spam.blocker.db.Db.Companion.COLUMN_CONTENT
 import spam.blocker.db.Db.Companion.COLUMN_HASH
 import spam.blocker.db.Db.Companion.COLUMN_ID
@@ -73,5 +75,29 @@ object BayesTable : BasicTable<BayesSample>(TABLE_BAYESIAN_FILTER) {
                 if(isSpam) "1" else "0"
             )
         )
+    }
+
+    fun serializeSamples(samples: List<BayesSample>): String {
+        return Json.encodeToString(samples)
+    }
+
+    fun deserializeSamples(json: String): List<BayesSample> {
+        return Json.decodeFromString(json)
+    }
+
+    fun exportToJson(ctx: Context): String {
+        return serializeSamples(listAll(ctx))
+    }
+
+    fun importFromJson(ctx: Context, json: String): Int {
+        val samples = deserializeSamples(json)
+        var imported = 0
+        samples.forEach { sample ->
+            if (findByHash(ctx, sample.hash) == null) {
+                addNew(ctx, sample.copy(id = 0))
+                imported++
+            }
+        }
+        return imported
     }
 }

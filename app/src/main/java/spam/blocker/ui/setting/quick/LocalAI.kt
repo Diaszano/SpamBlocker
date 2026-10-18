@@ -46,6 +46,8 @@ import spam.blocker.ui.widgets.AnimatedVisibleV
 import spam.blocker.ui.widgets.BalloonQuestionMark
 import spam.blocker.ui.widgets.BgFulfilled
 import spam.blocker.ui.widgets.Button
+import spam.blocker.ui.widgets.ConfigExportDialog
+import spam.blocker.ui.widgets.ConfigImportDialog
 import spam.blocker.ui.widgets.FlowRowSpaced
 import spam.blocker.ui.widgets.GradientDivider
 import spam.blocker.ui.widgets.GreyIcon
@@ -550,6 +552,38 @@ fun LocalAISettings(
                     if (granted)
                         trainingTrigger.value = true
                 }
+            }
+
+            // "Export" Button
+            val exportTrigger = remember { mutableStateOf(false) }
+            val exportJson = remember { mutableStateOf("") }
+            ConfigExportDialog(trigger = exportTrigger, initialText = exportJson.value)
+            StrokeButton(
+                label = Str(R.string.export),
+                color = C.textGrey,
+            ) {
+                exportJson.value = BayesTable.exportToJson(ctx)
+                exportTrigger.value = true
+            }
+
+            // "Import" Button
+            val importTrigger = remember { mutableStateOf(false) }
+            ConfigImportDialog(trigger = importTrigger) { jsonStr ->
+                val count = BayesTable.importFromJson(ctx, jsonStr)
+                if (count > 0) {
+                    val model = ComplementNaiveBayes()
+                    val dbSamples = BayesTable.listAll(ctx).map { Pair(it.content, it.isSpam) }
+                    if (dbSamples.isNotEmpty()) {
+                        model.train(dbSamples)
+                        writeInternalFile(ctx, Bayes.Model_File, model.serialize().toByteArray())
+                    }
+                }
+            }
+            StrokeButton(
+                label = Str(R.string.import_),
+                color = C.textGrey,
+            ) {
+                importTrigger.value = true
             }
         }
     }) {

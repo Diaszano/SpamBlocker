@@ -470,18 +470,23 @@ class Checker { // for namespace only
             cnb.deserialize(String(modelBytes))
             val prob = cnb.spamProbability(smsContent)
             val isSpam = prob > threshold
+            val confidence = if (isSpam) {
+                (prob * 100).toInt()
+            } else {
+                ((1.0 - prob) * 100).toInt()
+            }
 
             if (isSpam && checkSpam) { // spam
                 logger?.error(
                     ctx.getString(R.string.blocked_by_template).formatAnnotated(desc())
                 )
-                return ByNaiveBayes(RESULT_BLOCKED_BY_NAIVE_BAYES)
+                return ByNaiveBayes(RESULT_BLOCKED_BY_NAIVE_BAYES, confidence)
             }
             if (!isSpam && !checkSpam) { // ham
                 logger?.success(
                     ctx.getString(R.string.allowed_by).formatAnnotated(desc())
                 )
-                return ByNaiveBayes(RESULT_ALLOWED_BY_NAIVE_BAYES)
+                return ByNaiveBayes(RESULT_ALLOWED_BY_NAIVE_BAYES, confidence)
             }
 
             return null

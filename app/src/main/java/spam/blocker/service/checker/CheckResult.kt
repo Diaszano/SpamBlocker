@@ -378,9 +378,18 @@ class BySpamDb(
 @Serializable
 class ByNaiveBayes(
     override val byType: Int,
+    val confidence: Int = 0,
 ) : ICheckResult {
+    override fun reasonToDb(): String {
+        return if (confidence > 0) confidence.toString() else ""
+    }
+
     override fun resultReasonStr(ctx: Context): String {
-        return ctx.getString(R.string.local_ai)
+        return if (confidence > 0) {
+            "${ctx.getString(R.string.local_ai)} ($confidence%)"
+        } else {
+            ctx.getString(R.string.local_ai)
+        }
     }
 }
 
@@ -710,7 +719,8 @@ fun parseCheckResultFromDb(ctx: Context, result: Int, reason: String): ICheckRes
             }
         }
         RESULT_ALLOWED_BY_NAIVE_BAYES, RESULT_BLOCKED_BY_NAIVE_BAYES -> {
-            ByNaiveBayes(result)
+            val conf = reason.toIntOrNull() ?: 0
+            ByNaiveBayes(result, conf)
         }
 
         RESULT_ALLOWED_BY_CONTENT_REGEX, RESULT_BLOCKED_BY_CONTENT_REGEX -> {

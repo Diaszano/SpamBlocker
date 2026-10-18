@@ -28,7 +28,7 @@
 - Produces: `fun BayesTable.exportToJson(ctx: Context): String`
 - Produces: `fun BayesTable.importFromJson(ctx: Context, json: String): Int` (returns count of newly added samples)
 
-- [ ] **Step 1: Write test for Bayes dataset JSON serialization**
+- [x] **Step 1: Write test for Bayes dataset JSON serialization**
 
 ```kotlin
 package spam.blocker.db
@@ -52,14 +52,14 @@ class BayesSerializationTest {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.db.BayesSerializationTest"`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `serializeSamples` / `deserializeSamples` and add Import/Export buttons to `LocalAISettings` dialog**
+- [x] **Step 3: Implement `serializeSamples` / `deserializeSamples` and add Import/Export buttons to `LocalAISettings` dialog**
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `./gradlew testFdroidDebugUnitTest --tests "spam.blocker.db.BayesSerializationTest"`
 Expected: PASS
@@ -78,7 +78,7 @@ Expected: PASS
 - `ComplementNaiveBayes.predictWithConfidence(tokens: List<String>): Pair<Boolean, Float>`
 - Passes percentage to `ByNaiveBayes(result, confidence = score)` and displays discrete tag `AI: 95%` in `HistoryIndicator`.
 
-- [ ] **Step 1: Write test for confidence score calculation**
-- [ ] **Step 2: Implement `predictWithConfidence` using softmax over log-likelihoods**
-- [ ] **Step 3: Render discrete tag in history indicators**
-- [ ] **Step 4: Run `./gradlew assembleDebug lint` and commit: `feat: add local ai dataset export and confidence indicator`**
+- [x] **Step 1: Write test for confidence score calculation**
+- [x] **Step 2: Implement `predictWithConfidence` using softmax over log-likelihoods**
+- [x] **Step 3: Render discrete tag in history indicators**
+- [x] **Step 4: Run `./gradlew assembleDebug lint` and commit: `feat: add local ai dataset export and confidence indicator`**
