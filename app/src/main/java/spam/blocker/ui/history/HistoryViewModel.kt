@@ -26,25 +26,34 @@ open class HistoryViewModel(
     val searchEnabled = mutableStateOf(false)
     val filter = mutableStateOf("")
     val isLoading = mutableStateOf(true)
+    val hasError = mutableStateOf(false)
     val weeklyBlockedCount = mutableIntStateOf(0)
 
     fun reload(ctx: Context) {
         isLoading.value = true
         try {
-            records.clear()
-
             // Fuzzy search
             val filter = FuzzyFilter(filter.value)
 
-            records.addAll(table.listRecords(ctx).filter {
+            val newRecords = table.listRecords(ctx).filter {
                 isVisible(ctx, it, filter)
-            })
+            }
+
+            records.clear()
+            records.addAll(newRecords)
 
             val sevenDaysAgo = spam.blocker.util.Now.currentMillis() - 7 * 24 * 3600 * 1000L
             weeklyBlockedCount.value = table.countBlockedSince(ctx, sevenDaysAgo)
+            hasError.value = false
+        } catch (_: Throwable) {
+            hasError.value = true
         } finally {
             isLoading.value = false
         }
+    }
+
+    fun retry(ctx: Context) {
+        reload(ctx)
     }
 
     fun isVisible(

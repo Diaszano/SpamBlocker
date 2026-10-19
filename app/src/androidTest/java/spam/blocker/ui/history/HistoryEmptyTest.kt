@@ -95,5 +95,21 @@ class HistoryEmptyTest {
     fun testHistoryViewModelInitialLoadingState() {
         val vm = HistoryViewModel(0, CallTable())
         assertTrue(vm.isLoading.value)
+        org.junit.Assert.assertFalse(vm.hasError.value)
+    }
+
+    @Test
+    fun testHistoryListStatePrecedence() {
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = true, hasError = false, hasRecords = true))
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = false, hasError = true, hasRecords = true))
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = true, hasError = true, hasRecords = true))
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = false, hasError = false, hasRecords = true))
+
+        assertEquals(HistoryListState.LOADING, historyListState(isLoading = true, hasError = false, hasRecords = false))
+        assertEquals(HistoryListState.LOADING, historyListState(isLoading = true, hasError = true, hasRecords = false))
+
+        assertEquals(HistoryListState.ERROR, historyListState(isLoading = false, hasError = true, hasRecords = false))
+
+        assertEquals(HistoryListState.EMPTY, historyListState(isLoading = false, hasError = false, hasRecords = false))
     }
 }

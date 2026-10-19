@@ -2,6 +2,7 @@ package spam.blocker.ui.history
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -22,10 +24,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
@@ -97,10 +101,8 @@ fun HistoryCard(
                     if (bmpAvatar != null) {
                         ComposeImage(bmpAvatar.asImageBitmap(), "", modifier = modifier)
                     } else {
-                        // Use the hash code as color
-                        val toHash = contact?.name ?: record.peer
-                        val color = Color(toHash.hashCode().toLong() or 0xff808080/* for higher contrast */)
-                        ResImage(R.drawable.ic_contact_circle, color = color, modifier = modifier)
+                        // Neutral avatar fallback
+                        ResImage(R.drawable.ic_contact_circle, color = C.textGrey, modifier = modifier)
                     }
                 }
 
@@ -114,14 +116,14 @@ fun HistoryCard(
                         }
                         Text(
                             text = formatTime(ctx, record.time),
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             color = if (timeColors.isNullOrEmpty()) {
                                 C.textGrey
                             } else {
                                 timeColor(record.time, timeColors) ?: C.textGrey
                             },
-                            lineHeight = 16.sp,
-                            textAlign = TextAlign.Center,
+                            lineHeight = 14.sp,
+                            textAlign = TextAlign.End,
                         )
                     }
                 }
@@ -143,8 +145,8 @@ fun HistoryCard(
                             .padding(start = if (!record.expanded) 4.dp else 0.dp)
                             .weight(1f)
                     ) {
-                        // Row 1: Contact Avatar (when expanded) / Rule indicator / Number / SIM / Time
-                        RowVCenterSpaced(2) {
+                        // Row 1: Contact Avatar (when expanded) / Rule indicator / Number / Status Badge / SIM / Time
+                        RowVCenterSpaced(4) {
                             if (record.expanded) {
                                 Avatar(M
                                     .size(22.dp)
@@ -164,10 +166,33 @@ fun HistoryCard(
                             }
                             Text(
                                 text = t,
-                                color = if (record.isBlocked()) C.error else C.success,
-                                fontSize = 18.sp,
-                                modifier = M.weight(1f)
+                                color = LocalContentColor.current,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = M.weight(1f, fill = false)
                             )
+
+                            // Semantic badge for block vs allow
+                            val isBlocked = record.isBlocked()
+                            val badgeBg = if (isBlocked) C.error.copy(alpha = 0.15f) else C.success.copy(alpha = 0.15f)
+                            val badgeColor = if (isBlocked) C.error else C.success
+                            val badgeText = stringResource(if (isBlocked) R.string.blocked else R.string.allowed)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(badgeBg)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = badgeText,
+                                    color = badgeColor,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    lineHeight = 13.sp
+                                )
+                            }
 
                             if (record.expanded) {
                                 SimAndTime()
@@ -304,7 +329,7 @@ fun HistoryCard(
 
                     // 3. SIM / Time (only when not expanded)
                     if (!record.expanded) {
-                        SimAndTime(M.heightIn(ItemHeight.dp))
+                        SimAndTime(M.padding(start = 4.dp))
                     }
                 }
 

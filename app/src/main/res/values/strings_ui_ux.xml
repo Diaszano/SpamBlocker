@@ -16,6 +16,7 @@
     <string name="history_filters_off" translatable="false">Allowed and blocked filters are off</string>
     <string name="history_no_matches" translatable="false">No matching records</string>
     <string name="history_empty" translatable="false">No records</string>
+    <string name="history_error_loading" translatable="false">Failed to load history records</string>
     <string name="none_active" translatable="false">None active</string>
     <string name="block_prefix" translatable="false">Block prefix / range</string>
     <string name="blocked_last_7_days" translatable="false">Blocked past 7 days: %d</string>

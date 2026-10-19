@@ -88,4 +88,32 @@ class HistoryEmptyUnitTest {
             )
         )
     }
+
+    @Test
+    fun testHistoryListStatePrecedence() {
+        // When hasRecords is true, CONTENT always wins
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = true, hasError = false, hasRecords = true))
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = false, hasError = true, hasRecords = true))
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = true, hasError = true, hasRecords = true))
+        assertEquals(HistoryListState.CONTENT, historyListState(isLoading = false, hasError = false, hasRecords = true))
+
+        // When hasRecords is false:
+        // LOADING if isLoading
+        assertEquals(HistoryListState.LOADING, historyListState(isLoading = true, hasError = false, hasRecords = false))
+        assertEquals(HistoryListState.LOADING, historyListState(isLoading = true, hasError = true, hasRecords = false))
+
+        // ERROR if !isLoading and hasError
+        assertEquals(HistoryListState.ERROR, historyListState(isLoading = false, hasError = true, hasRecords = false))
+
+        // EMPTY if !isLoading and !hasError
+        assertEquals(HistoryListState.EMPTY, historyListState(isLoading = false, hasError = false, hasRecords = false))
+    }
+
+    @Test
+    fun testHistoryViewModelInitialState() {
+        val vm = HistoryViewModel(0, spam.blocker.db.CallTable())
+        org.junit.jupiter.api.Assertions.assertTrue(vm.isLoading.value)
+        org.junit.jupiter.api.Assertions.assertFalse(vm.hasError.value)
+        org.junit.jupiter.api.Assertions.assertTrue(vm.records.isEmpty())
+    }
 }

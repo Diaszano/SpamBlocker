@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,9 +41,25 @@ import spam.blocker.ui.widgets.LazyScrollbar
 import spam.blocker.ui.widgets.LeftDeleteSwipeWrapper
 import spam.blocker.ui.widgets.SnackBar
 import spam.blocker.ui.widgets.Str
+import spam.blocker.ui.widgets.StrokeButton
 import spam.blocker.ui.widgets.SwipeInfo
 import spam.blocker.util.Launcher
 import spam.blocker.util.SimUtils
+
+enum class HistoryListState { LOADING, ERROR, EMPTY, CONTENT }
+
+fun historyListState(
+    isLoading: Boolean,
+    hasError: Boolean,
+    hasRecords: Boolean
+): HistoryListState {
+    return when {
+        hasRecords -> HistoryListState.CONTENT
+        isLoading -> HistoryListState.LOADING
+        hasError -> HistoryListState.ERROR
+        else -> HistoryListState.EMPTY
+    }
+}
 
 fun historyEmptyMessageRes(
     passedEnabled: Boolean,
@@ -77,8 +95,51 @@ fun HistoryList(
         mutableStateOf(showHistoryIndicator.value)
     }
 
-    if (vm.records.isEmpty()) {
-        if (!vm.isLoading.value) {
+    val state = historyListState(
+        isLoading = vm.isLoading.value,
+        hasError = vm.hasError.value,
+        hasRecords = vm.records.isNotEmpty()
+    )
+
+    when (state) {
+        HistoryListState.LOADING -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = G.palette.teal200
+                )
+            }
+        }
+        HistoryListState.ERROR -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = Str(R.string.history_error_loading),
+                        color = G.palette.error,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                    )
+                    StrokeButton(
+                        label = Str(R.string.retry),
+                        color = G.palette.teal200,
+                        onClick = { vm.retry(ctx) }
+                    )
+                }
+            }
+        }
+        HistoryListState.EMPTY -> {
             val emptyMessageRes = historyEmptyMessageRes(
                 passedEnabled = showHistoryPassed.value,
                 blockedEnabled = showHistoryBlocked.value,
@@ -99,7 +160,7 @@ fun HistoryList(
                 )
             }
         }
-    } else {
+        HistoryListState.CONTENT -> {
         LazyScrollbar(state = lazyState) {
             IndicatorsWrapper(vm) { indicatorChecker, forceRefreshIndicators ->
                 LazyColumn(
@@ -203,5 +264,6 @@ fun HistoryList(
             }
         }
     }
+}
 }
 }

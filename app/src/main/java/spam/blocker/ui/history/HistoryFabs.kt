@@ -330,6 +330,7 @@ fun HistoryFabs(
                             SwitchBox(checked = showHistoryPassed.value, onCheckedChange = { isOn ->
                                 spf.showPassed = isOn
                                 showHistoryPassed.value = isOn
+                                vm.reload(ctx)
                             })
                         }
                         // Blocked
@@ -337,6 +338,7 @@ fun HistoryFabs(
                             SwitchBox(checked = showHistoryBlocked.value, onCheckedChange = { isOn ->
                                 spf.showBlocked = isOn
                                 showHistoryBlocked.value = isOn
+                                vm.reload(ctx)
                             })
                         }
 
