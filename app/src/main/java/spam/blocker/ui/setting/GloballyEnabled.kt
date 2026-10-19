@@ -1,11 +1,17 @@
 package spam.blocker.ui.setting
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -217,24 +223,44 @@ fun GloballyEnabled() {
             }
 
             if (permissionRequired) {
-                RowVCenterSpaced(8, modifier = M.padding(horizontal = 12.dp, vertical = 6.dp)) {
-                    ResImage(R.drawable.ic_warning, C.warning, M.size(16.dp))
+                Column(
+                    modifier = M
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .background(C.warning.copy(alpha = 0.08f), shape = RoundedCornerShape(8.dp))
+                        .border(1.dp, C.warning.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                ) {
+                    RowVCenterSpaced(8) {
+                        ResImage(R.drawable.ic_warning, C.warning, M.size(18.dp))
+                        Text(
+                            text = Str(R.string.protection_status_permission_required),
+                            color = C.warning,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                     Text(
                         text = Str(R.string.permission_required_desc),
-                        color = C.warning,
+                        color = C.textGrey,
                         fontSize = 12.sp,
-                        modifier = M.weight(1f)
+                        modifier = M.padding(top = 4.dp, bottom = 8.dp)
                     )
-                    StrokeButton(
-                        label = Str(R.string.grant_permissions),
-                        color = C.warning
+                    Row(
+                        modifier = M.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        val toAsk = mutableListOf<PermissionWrapper>()
-                        if (isCallPermMissing) toAsk.add(PermissionWrapper(Permission.callScreening))
-                        if (isSmsPermMissing) toAsk.add(PermissionWrapper(Permission.receiveSMS))
-                        G.permissionChain.ask(ctx, toAsk) {
-                            Permission.init(ctx)
-                            mmsEnabled = checkMmsState()
+                        StrokeButton(
+                            label = Str(R.string.grant_permissions),
+                            color = C.warning
+                        ) {
+                            val toAsk = mutableListOf<PermissionWrapper>()
+                            if (isCallPermMissing) toAsk.add(PermissionWrapper(Permission.callScreening))
+                            if (isSmsPermMissing) toAsk.add(PermissionWrapper(Permission.receiveSMS))
+                            G.permissionChain.ask(ctx, toAsk) {
+                                Permission.init(ctx)
+                                mmsEnabled = checkMmsState()
+                            }
                         }
                     }
                 }

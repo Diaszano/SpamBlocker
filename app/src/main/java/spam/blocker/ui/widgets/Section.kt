@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -56,7 +57,7 @@ fun Section(
                 .fillMaxWidth()
                 .padding(horizontal = horizontalPadding.dp)
                 .border(0.5.dp, bgColor.slightDiff(), shape = RoundedCornerShape(4.dp))
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 10.dp)
                 .wrapContentHeight()
         ) {
             // Show expanded content
@@ -79,7 +80,7 @@ fun Section(
             }
         }
 
-        // the section title
+        // the section title chip
         if (title != null) {
             val state = if (isCollapsed?.value == true) R.string.section_collapsed else R.string.section_expanded
             val stateText = stringResource(state)
@@ -93,9 +94,10 @@ fun Section(
 
             Box(
                 modifier = M
-                    .fillMaxWidth()
-                    .offset(y = (-8).dp)
-                    .heightIn(min = 48.dp)
+                    .wrapContentWidth()
+                    .offset(x = 16.dp, y = (-8).dp)
+                    .background(bgColor)
+                    .clip(RoundedCornerShape(4.dp))
                     .let {
                         if (isCollapsed != null) { // is foldable
                             it.clickable(
@@ -128,28 +130,21 @@ fun Section(
                         }
                     }
             ) {
-                Box(
-                    modifier = M
-                        .wrapContentWidth()
-                        .offset(x = 20.dp)
-                        .background(bgColor)
-                ) {
-                    RowVCenterSpaced(4, modifier = Modifier.padding(horizontal = 10.dp)) {
-                        Text(
-                            text = title,
-                            fontSize = 13.sp,
+                RowVCenterSpaced(4, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
+                    Text(
+                        text = title,
+                        fontSize = 13.sp,
+                        color = titleColor,
+                        lineHeight = 16.sp,
+                    )
+                    if (isCollapsed != null) {
+                        ResIcon(
+                            iconId = R.drawable.ic_dropdown_arrow,
                             color = titleColor,
-                            lineHeight = 16.sp,
+                            modifier = Modifier
+                                .size(14.dp)
+                                .rotate(chevronRotation)
                         )
-                        if (isCollapsed != null) {
-                            ResIcon(
-                                iconId = R.drawable.ic_dropdown_arrow,
-                                color = titleColor,
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .rotate(chevronRotation)
-                            )
-                        }
                     }
                 }
             }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
@@ -70,6 +71,7 @@ fun Button(
     contentPadding: PaddingValues = PaddingValues(BUTTON_H_PADDING.dp, 0.dp),
     contentDescription: String? = null,
     onClickLabel: String? = null,
+    overlay: (@Composable BoxScope.() -> Unit)? = null,
     onClick: Lambda? = null,
 ) {
     val C = G.palette
@@ -77,14 +79,6 @@ fun Button(
     Box(
         modifier = modifier
             .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
-            .border(
-                width = borderWidth,
-                color = if (enabled) borderColor else C.disabled,
-                shape = shape
-            )
-            .clip(shape)
-            .background(backgroundColor)
-
             .combinedClickable(
                 enabled = enabled,
                 role = Role.Button,
@@ -97,12 +91,26 @@ fun Button(
                     this.contentDescription = contentDescription!!
                 }
             },
-        propagateMinConstraints = true
+        contentAlignment = Alignment.Center
     ) {
-        RowCenter(
-            Modifier.padding(contentPadding),
+        Box(
+            modifier = Modifier
+                .heightIn(min = BUTTON_H.dp)
+                .border(
+                    width = borderWidth,
+                    color = if (enabled) borderColor else C.disabled,
+                    shape = shape
+                )
+                .clip(shape)
+                .background(backgroundColor),
+            contentAlignment = Alignment.Center
         ) {
-            content()
+            RowCenter(
+                Modifier.padding(contentPadding),
+            ) {
+                content()
+            }
+            overlay?.invoke(this)
         }
     }
 }
@@ -120,6 +128,7 @@ fun StrokeButton(
     enabled: Boolean = true,
     contentDescription: String? = null,
     onClickLabel: String? = null,
+    overlay: (@Composable BoxScope.() -> Unit)? = null,
     onClick: Lambda? = null,
 ) {
     Button(
@@ -132,6 +141,7 @@ fun StrokeButton(
         borderColor = color,
         shape = shape,
         onClick = onClick,
+        overlay = overlay,
         content = {
             RowVCenterSpaced(4) {
                 icon?.let { it() }
@@ -154,28 +164,25 @@ fun ToggleButton(
     onClick: Lambda,
 ) {
     val C = G.palette
-    Box(
-        modifier = modifier.wrapContentSize()
-    ) {
-        Button(
-            modifier = Modifier,
-            borderWidth = if (enabled) 2.dp else 1.dp,
-            borderColor = if (enabled) C.textGrey else C.disabled,
-            content = content,
-            onClick = onClick
-        )
-
-        if (enabled) {
-            Canvas(
-                modifier = Modifier
-                    .size(5.dp)
-                    .align(Alignment.CenterStart)
-                    .offset(x = 5.dp)
-            ) {
-                drawCircle(color = C.success, radius = size.minDimension / 2)
+    Button(
+        modifier = modifier,
+        borderWidth = if (enabled) 2.dp else 1.dp,
+        borderColor = if (enabled) C.textGrey else C.disabled,
+        content = content,
+        onClick = onClick,
+        overlay = if (enabled) {
+            {
+                Canvas(
+                    modifier = Modifier
+                        .size(5.dp)
+                        .align(Alignment.CenterStart)
+                        .offset(x = 5.dp)
+                ) {
+                    drawCircle(color = C.success, radius = size.minDimension / 2)
+                }
             }
-        }
-    }
+        } else null
+    )
 }
 
 
@@ -218,30 +225,27 @@ fun FooterButton(
 ) {
     val C = G.palette
 
-    Box(
-        modifier = modifier.wrapContentSize()
-    ) {
-        StrokeButton(
-            label = label,
-            icon = icon,
-            color = color,
-            modifier = Modifier,
-            onClick = onClick,
-            enabled = enabled,
-            contentDescription = contentDescription,
-            onLongClick = onLongClick,
-        )
-
-        Icon(
-            imageVector = ImageVector.vectorResource(footerIconId),
-            contentDescription = "",
-            tint = if (enabled) footerColor else C.disabled,
-            modifier = Modifier
-                .size(footerSize.dp)
-                .align(Alignment.BottomEnd)
-                .offset(footerOffset.first.dp, footerOffset.second.dp)
-        )
-    }
+    StrokeButton(
+        label = label,
+        icon = icon,
+        color = color,
+        modifier = modifier,
+        onClick = onClick,
+        enabled = enabled,
+        contentDescription = contentDescription,
+        onLongClick = onLongClick,
+        overlay = {
+            Icon(
+                imageVector = ImageVector.vectorResource(footerIconId),
+                contentDescription = "",
+                tint = if (enabled) footerColor else C.disabled,
+                modifier = Modifier
+                    .size(footerSize.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(footerOffset.first.dp, footerOffset.second.dp)
+            )
+        }
+    )
 }
 
 @Composable

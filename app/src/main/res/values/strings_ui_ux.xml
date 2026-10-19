@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="section_collapsed" translatable="false">Collapsed</string>
-    <string name="section_expanded" translatable="false">Expanded</string>
-    <string name="expand" translatable="false">Expand</string>
-    <string name="collapse" translatable="false">Collapse</string>
-    <string name="help" translatable="false">Help</string>
-    <string name="help_info" translatable="false">Help: %s</string>
-    <string name="signals" translatable="false">Signals</string>
-    <string name="exceptions" translatable="false">Exceptions</string>
-    <string name="context_rules" translatable="false">Context</string>
-    <string name="behavior" translatable="false">Behavior</string>
-    <string name="needs_training" translatable="false">Needs training</string>
-    <string name="rcs_unavailable" translatable="false">Not supported</string>
-    <string name="global_blocking" translatable="false">Global blocking</string>
-    <string name="history_filters_off" translatable="false">Allowed and blocked filters are off</string>
-    <string name="history_no_matches" translatable="false">No matching records</string>
-    <string name="history_empty" translatable="false">No records</string>
-    <string name="history_error_loading" translatable="false">Failed to load history records</string>
-    <string name="none_active" translatable="false">None active</string>
-    <string name="block_prefix" translatable="false">Block prefix / range</string>
-    <string name="blocked_last_7_days" translatable="false">Blocked past 7 days: %d</string>
-    <string name="rule_presets" translatable="false">Presets</string>
-    <string name="preset_br_telemarketing" translatable="false">Brazil Telemarketing &amp; Debt (0303/0304)</string>
-    <string name="preset_suspicious_url" translatable="false">Suspicious links &amp; URL shorteners</string>
-    <string name="preset_satellite_toll" translatable="false">Satellite &amp; Premium Rate (+881/882...)</string>
-    <string name="pause_blocking" translatable="false">Pause</string>
-    <string name="pause_15m" translatable="false">15 minutes</string>
-    <string name="pause_1h" translatable="false">1 hour</string>
-    <string name="pause_8h" translatable="false">8 hours</string>
-    <string name="paused_remaining" translatable="false">Paused (%d min remaining)</string>
-    <string name="resume" translatable="false">Resume</string>
-    <string name="bot_templates" translatable="false">Templates</string>
-    <string name="bot_template_prune_history" translatable="false">Auto Prune History</string>
-    <string name="bot_template_prune_history_desc" translatable="false">Clean up call and SMS history older than 30 days automatically.</string>
-    <string name="bot_template_webhook_alert" translatable="false">Webhook on Blocked Call</string>
-    <string name="bot_template_webhook_alert_desc" translatable="false">Send an HTTP POST webhook alert whenever an incoming call is blocked.</string>
-    <string name="bot_template_auto_backup" translatable="false">Scheduled Auto Backup</string>
-    <string name="bot_template_auto_backup_desc" translatable="false">Export an encrypted configuration backup on a schedule.</string>
-    <string name="apply" translatable="false">Apply</string>
-    <string name="theme_truecaller" translatable="false">Truecaller</string>
-    <string name="theme_catppuccin" translatable="false">Catppuccin</string>
-    <string name="appearance" translatable="false">Appearance</string>
-    <string name="appearance_system" translatable="false">System</string>
-    <string name="appearance_light" translatable="false">Light</string>
-    <string name="appearance_dark" translatable="false">Dark</string>
-    <string name="protection" translatable="false">Protection</string>
-    <string name="protection_status_active" translatable="false">Active</string>
-    <string name="protection_status_paused" translatable="false">Paused</string>
-    <string name="protection_status_permission_required" translatable="false">Permission required</string>
-    <string name="protection_status_channels_off" translatable="false">Channels disabled</string>
-    <string name="protection_status_off" translatable="false">Off</string>
-    <string name="permission_required_desc" translatable="false">Call or SMS permissions are missing. Protection cannot filter calls or messages without granted permissions.</string>
-    <string name="permission_call_screening_missing" translatable="false">Call screening permission missing</string>
-    <string name="permission_sms_missing" translatable="false">SMS receiving permission missing</string>
-    <string name="open_sms" translatable="false">Open SMS</string>
-    <string name="more_options" translatable="false">More options</string>
+    <string name="section_collapsed">Collapsed</string>
+    <string name="section_expanded">Expanded</string>
+    <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
+    <string name="help">Help</string>
+    <string name="help_info">Help: %s</string>
+    <string name="signals">Signals</string>
+    <string name="exceptions">Exceptions</string>
+    <string name="context_rules">Context</string>
+    <string name="behavior">Behavior</string>
+    <string name="needs_training">Needs training</string>
+    <string name="rcs_unavailable">Not supported</string>
+    <string name="global_blocking">Global blocking</string>
+    <string name="history_filters_off">Allowed and blocked filters are off</string>
+    <string name="history_no_matches">No matching records</string>
+    <string name="history_empty">No records</string>
+    <string name="history_error_loading">Failed to load history records</string>
+    <string name="none_active">None active</string>
+    <string name="block_prefix">Block prefix / range</string>
+    <string name="blocked_last_7_days">Blocked past 7 days: %d</string>
+    <string name="rule_presets">Presets</string>
+    <string name="preset_br_telemarketing">Brazil Telemarketing &amp; Debt (0303/0304)</string>
+    <string name="preset_suspicious_url">Suspicious links &amp; URL shorteners</string>
+    <string name="preset_satellite_toll">Satellite &amp; Premium Rate (+881/882...)</string>
+    <string name="pause_blocking">Pause</string>
+    <string name="pause_15m">15 minutes</string>
+    <string name="pause_1h">1 hour</string>
+    <string name="pause_8h">8 hours</string>
+    <string name="paused_remaining">Paused (%d min remaining)</string>
+    <string name="resume">Resume</string>
+    <string name="bot_templates">Templates</string>
+    <string name="bot_template_prune_history">Auto Prune History</string>
+    <string name="bot_template_prune_history_desc">Clean up call and SMS history older than 30 days automatically.</string>
+    <string name="bot_template_webhook_alert">Webhook on Blocked Call</string>
+    <string name="bot_template_webhook_alert_desc">Send an HTTP POST webhook alert whenever an incoming call is blocked.</string>
+    <string name="bot_template_auto_backup">Scheduled Auto Backup</string>
+    <string name="bot_template_auto_backup_desc">Export an encrypted configuration backup on a schedule.</string>
+    <string name="apply">Apply</string>
+    <string name="theme_truecaller">Truecaller</string>
+    <string name="theme_catppuccin">Catppuccin</string>
+    <string name="appearance">Appearance</string>
+    <string name="appearance_system">System</string>
+    <string name="appearance_light">Light</string>
+    <string name="appearance_dark">Dark</string>
+    <string name="protection">Protection</string>
+    <string name="protection_status_active">Active</string>
+    <string name="protection_status_paused">Paused</string>
+    <string name="protection_status_permission_required">Permission required</string>
+    <string name="protection_status_channels_off">Channels disabled</string>
+    <string name="protection_status_off">Off</string>
+    <string name="permission_required_desc">Call or SMS permissions are missing. Protection cannot filter calls or messages without granted permissions.</string>
+    <string name="permission_call_screening_missing">Call screening permission missing</string>
+    <string name="permission_sms_missing">SMS receiving permission missing</string>
+    <string name="open_sms">Open SMS</string>
+    <string name="more_options">More options</string>
 </resources>

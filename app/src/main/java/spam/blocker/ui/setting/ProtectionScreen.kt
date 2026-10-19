@@ -153,18 +153,11 @@ fun ProtectionScreen() {
     val spfSections = spf.SettingSections(ctx)
     val spfGlobal = spf.Global(ctx)
 
-    var alsoShowTestButtonLabel by remember {
-        mutableStateOf(
-            isFreshInstall(ctx) && !spfGlobal.isTestIconClicked
-        )
-    }
-
     FabWrapper(
         fabRow = { positionModifier ->
             Fab(
                 visible = !bottomReached,
                 contentDescription = Str(R.string.title_rule_testing),
-                text = if (alsoShowTestButtonLabel) Str(R.string.title_rule_testing) else null,
                 iconId = R.drawable.ic_tube,
                 iconColor = White,
                 bgColor = if (priorityConflicts.isEmpty()) C.teal200 else C.warning,
@@ -173,9 +166,7 @@ fun ProtectionScreen() {
                 checkConflicts()
                 if (priorityConflicts.isEmpty()) {
                     testingTrigger.value = true
-
                     spfGlobal.isTestIconClicked = true
-                    alsoShowTestButtonLabel = false
                 } else {
                     conflictTrigger.value = true
                 }
