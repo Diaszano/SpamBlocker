@@ -174,6 +174,20 @@ class spf { // for namespace only
         var dialogBg by color("dialogBg", RaisinBlack, R.string.dialog_bg)
 
         var background by color("background", Black111111, R.string.app_bg)
+
+        fun hasSavedCustomColors(): Boolean {
+            return prefs.all.keys.any { it.startsWith("color_") }
+        }
+    }
+
+    class Theme(ctx: Context) : SharedPref(ctx) {
+        var themeFamily by str(KEY_THEME_FAMILY)
+        var themeAppearance by str(KEY_THEME_APPEARANCE)
+
+        companion object {
+            const val KEY_THEME_FAMILY = "theme_family"
+            const val KEY_THEME_APPEARANCE = "theme_appearance"
+        }
     }
 
     class Temporary(ctx: Context) : SharedPref(ctx) {
