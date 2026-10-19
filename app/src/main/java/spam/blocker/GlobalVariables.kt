@@ -20,6 +20,13 @@ import spam.blocker.ui.setting.bot.BotViewModel
 import spam.blocker.ui.setting.regex.ContentRegexViewModel
 import spam.blocker.ui.setting.regex.NumberRegexViewModel
 import spam.blocker.ui.setting.regex.QuickCopyRegexViewModel
+import spam.blocker.ui.isLight
+import spam.blocker.ui.theme.ThemeAppearance
+import spam.blocker.ui.theme.ThemeChoice
+import spam.blocker.ui.theme.ThemeFamily
+import spam.blocker.ui.theme.isDark
+import spam.blocker.ui.theme.presetColors
+import spam.blocker.ui.theme.resolveThemeChoice
 import spam.blocker.ui.widgets.BottomBarViewModel
 import spam.blocker.util.Notification.syncSystemChannels
 import spam.blocker.util.Permission
@@ -37,6 +44,9 @@ object G {
 
     val notificationChannels : SnapshotStateList<Channel> = mutableStateListOf()
     lateinit var palette : Palette
+    val currentThemeChoice : MutableState<ThemeChoice> = mutableStateOf(
+        ThemeChoice(ThemeFamily.TRUECALLER, ThemeAppearance.SYSTEM)
+    )
 
     val callVM : CallViewModel = CallViewModel()
     val smsVM : SmsViewModel = SmsViewModel()
@@ -57,12 +67,34 @@ object G {
     fun initialize(ctx: Context) {
         // Global switches
         run {
-            val spf = spf.Global(ctx)
-            globallyEnabled.value = spf.isGloballyEnabled
-            pausedUntil.value = spf.pausedUntil
-            callEnabled.value = spf.isCallEnabled && Permission.callScreening.isGranted
-            smsEnabled.value = spf.isSmsEnabled && Permission.receiveSMS.isGranted
+            val globalSpf = spf.Global(ctx)
+            globallyEnabled.value = globalSpf.isGloballyEnabled
+            pausedUntil.value = globalSpf.pausedUntil
+            callEnabled.value = globalSpf.isCallEnabled && Permission.callScreening.isGranted
+            smsEnabled.value = globalSpf.isSmsEnabled && Permission.receiveSMS.isGranted
             palette = Palette(ctx)
+
+            val themeSpf = spf.Theme(ctx)
+            val choice = resolveThemeChoice(
+                themeSpf.themeFamily,
+                themeSpf.themeAppearance,
+                palette.hasSavedCustomColors()
+            )
+            currentThemeChoice.value = choice
+
+            val systemIsDark = runCatching {
+                (ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+            }.getOrDefault(false)
+
+            val isDark = choice.isDark(
+                systemIsDark = systemIsDark,
+                customBackgroundIsDark = !palette.background.isLight()
+            )
+            if (choice.family != ThemeFamily.CUSTOM) {
+                palette.applyPreset(presetColors(choice.family, isDark))
+            } else {
+                palette.restoreCustom()
+            }
         }
 
         // Workflow switches

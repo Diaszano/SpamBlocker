@@ -33,4 +33,10 @@
     <string name="bot_template_auto_backup" translatable="false">Scheduled Auto Backup</string>
     <string name="bot_template_auto_backup_desc" translatable="false">Export an encrypted configuration backup on a schedule.</string>
     <string name="apply" translatable="false">Apply</string>
+    <string name="theme_truecaller" translatable="false">Truecaller</string>
+    <string name="theme_catppuccin" translatable="false">Catppuccin</string>
+    <string name="appearance" translatable="false">Appearance</string>
+    <string name="appearance_system" translatable="false">System</string>
+    <string name="appearance_light" translatable="false">Light</string>
+    <string name="appearance_dark" translatable="false">Dark</string>
 </resources>

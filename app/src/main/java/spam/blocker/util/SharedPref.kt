@@ -30,6 +30,8 @@ import spam.blocker.ui.theme.Salmon
 import spam.blocker.ui.theme.SilverGrey
 import spam.blocker.ui.theme.SkyBlue
 import spam.blocker.ui.theme.Teal200
+import spam.blocker.ui.theme.KEY_THEME_APPEARANCE
+import spam.blocker.ui.theme.KEY_THEME_FAMILY
 import spam.blocker.util.TimeUtils.FreshnessColor
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -178,16 +180,35 @@ class spf { // for namespace only
         fun hasSavedCustomColors(): Boolean {
             return prefs.all.keys.any { it.startsWith("color_") }
         }
+
+        fun applyPreset(colors: Map<String, Color>) {
+            allColors.forEach { delegate ->
+                colors[delegate.key]?.let { presetColor ->
+                    if (delegate.state.value != presetColor) {
+                        delegate.state.value = presetColor
+                    }
+                }
+            }
+        }
+
+        fun restoreCustom() {
+            allColors.forEach { delegate ->
+                val savedArgb = if (prefs.contains("color_${delegate.key}")) {
+                    prefs.getInt("color_${delegate.key}", delegate.default.toArgb())
+                } else {
+                    delegate.default.toArgb()
+                }
+                val customColor = Color(savedArgb)
+                if (delegate.state.value != customColor) {
+                    delegate.state.value = customColor
+                }
+            }
+        }
     }
 
     class Theme(ctx: Context) : SharedPref(ctx) {
         var themeFamily by str(KEY_THEME_FAMILY)
         var themeAppearance by str(KEY_THEME_APPEARANCE)
-
-        companion object {
-            const val KEY_THEME_FAMILY = "theme_family"
-            const val KEY_THEME_APPEARANCE = "theme_appearance"
-        }
     }
 
     class Temporary(ctx: Context) : SharedPref(ctx) {
