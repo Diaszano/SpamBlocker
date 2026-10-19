@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Surface
@@ -93,7 +94,7 @@ fun BottomBar(vm: BottomBarViewModel) {
             }
     ) {
         RowVCenter(
-            modifier = M.padding(vertical = 6.dp),
+            modifier = M.selectableGroup().padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             // 3 tab items

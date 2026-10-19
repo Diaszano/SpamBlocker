@@ -85,14 +85,13 @@ fun Button(
             .clip(shape)
             .background(backgroundColor)
 
-            .thenIf(enabled) {
-                combinedClickable(
-                    role = Role.Button,
-                    onClickLabel = onClickLabel,
-                    onClick = { onClick?.let { it() } },
-                    onLongClick = { onLongClick?.invoke() }
-                )
-            }
+            .combinedClickable(
+                enabled = enabled,
+                role = Role.Button,
+                onClickLabel = onClickLabel,
+                onClick = { onClick?.let { it() } },
+                onLongClick = { onLongClick?.invoke() }
+            )
             .thenIf(contentDescription != null) {
                 semantics {
                     this.contentDescription = contentDescription!!

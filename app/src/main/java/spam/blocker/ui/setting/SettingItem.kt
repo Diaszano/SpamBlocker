@@ -61,7 +61,7 @@ fun SettingItem(
         helpTooltip?.let {
             BalloonQuestionMark(
                 tooltip = it,
-                contentDescription = stringResource(R.string.help_info, stringResource(labelId))
+                contentDescription = stringResource(R.string.help_info, label)
             )
         }
         value?.let {
