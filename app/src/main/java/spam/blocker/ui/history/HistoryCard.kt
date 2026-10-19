@@ -3,6 +3,7 @@ package spam.blocker.ui.history
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,6 +82,7 @@ fun HistoryCard(
     simCount: Int,
     timeColors: List<FreshnessColor>?,
     modifier: Modifier,
+    onMenuClick: (() -> Unit)? = null,
 ) {
     val C = G.palette
     val ctx = LocalContext.current
@@ -330,6 +335,28 @@ fun HistoryCard(
                     // 3. SIM / Time (only when not expanded)
                     if (!record.expanded) {
                         SimAndTime(M.padding(start = 4.dp))
+                    }
+
+                    // 4. Visible more options menu trigger
+                    if (onMenuClick != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .align(if (record.expanded) Alignment.Top else Alignment.CenterVertically)
+                                .clickable(
+                                    role = Role.Button,
+                                    onClick = onMenuClick,
+                                )
+                                .semantics {
+                                    contentDescription = ctx.getString(R.string.more_options)
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            ResIcon20(
+                                iconId = R.drawable.ic_more_vert,
+                                color = C.textGrey,
+                            )
+                        }
                     }
                 }
 

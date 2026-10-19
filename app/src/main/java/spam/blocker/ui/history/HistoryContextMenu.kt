@@ -65,11 +65,21 @@ fun SearchOnlineConfigDialog(
     }
 }
 
+fun historyOpenActionRes(forType: Int): Int {
+    return if (forType == Def.ForNumber) R.string.call else R.string.open_sms
+}
+
+fun historyOpenActionIcon(forType: Int): Int {
+    return if (forType == Def.ForNumber) R.drawable.ic_call else R.drawable.ic_open_msg
+}
+
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun HistoryContextMenuWrapper(
     vm: HistoryViewModel,
     record: HistoryRecord,
+    onOpen: () -> Unit,
+    onDelete: () -> Unit,
     content: @Composable (MutableState<Boolean>) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -152,6 +162,20 @@ fun HistoryContextMenuWrapper(
 
             // 3. build context menu
             menuItems = listOf(
+                // Open / Call / Open SMS
+                LabelItem(
+                    label = ctx.getString(historyOpenActionRes(vm.forType)),
+                    leadingIcon = {
+                        ResIcon(
+                            historyOpenActionIcon(vm.forType),
+                            modifier = M.size(20.dp),
+                            color = C.teal200
+                        )
+                    }
+                ) {
+                    onOpen()
+                },
+
                 // Test
                 LabelItem(
                     label = ctx.getString(R.string.test),
@@ -260,6 +284,20 @@ fun HistoryContextMenuWrapper(
                     leadingIcon = { GreyIcon20(R.drawable.ic_filter) }
                 ) {
                     vm.searchEnabled.value = true
+                },
+
+                // Delete
+                LabelItem(
+                    label = ctx.getString(R.string.delete),
+                    leadingIcon = {
+                        ResIcon(
+                            R.drawable.ic_recycle_bin,
+                            modifier = M.size(20.dp),
+                            color = C.error
+                        )
+                    }
+                ) {
+                    onDelete()
                 }
             )
         }

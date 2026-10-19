@@ -181,54 +181,67 @@ fun HistoryList(
                         else
                             listOf()
                     }
-                    HistoryContextMenuWrapper(vm, record) { contextMenuExpanded ->
+                    val onOpen = {
+                        val i = vm.records.indexOfFirst { it.id == record.id }
+                        if (i >= 0) {
+                            val currRecord = vm.records[i]
+                            // Navigate to the default app, open the conversation to this number.
+                            if (!currRecord.read) {
+                                // 1. update db
+                                vm.table.markAsRead(ctx, currRecord.id)
+                                // 2. update UI
+                                vm.records[i] = currRecord.copy(read = true)
+                            }
+                            when (vm.forType) {
+                                Def.ForNumber -> Launcher.openCallConversation(
+                                    ctx,
+                                    currRecord.peer
+                                )
+
+                                Def.ForSms -> Launcher.openSMSConversation(ctx, currRecord.peer)
+                            }
+                        }
+                    }
+
+                    val onDelete = {
+                        val i = vm.records.indexOfFirst { it.id == record.id }
+                        if (i >= 0) {
+                            val rec = vm.records[i]
+
+                            // 1. delete from db
+                            vm.table.deleteById(ctx, rec.id)
+
+                            // 2. remove from ArrayList
+                            vm.records.removeAt(i)
+
+                            // 3. show snackbar
+                            SnackBar.show(
+                                coroutineScope,
+                                rec.peer,
+                                ctx.getString(R.string.undelete),
+                            ) {
+                                vm.table.addWithId(ctx, rec)
+                                val insertIndex = i.coerceAtMost(vm.records.size)
+                                vm.records.add(insertIndex, rec)
+                            }
+                        }
+                    }
+
+                    HistoryContextMenuWrapper(
+                        vm = vm,
+                        record = record,
+                        onOpen = onOpen,
+                        onDelete = onDelete,
+                    ) { contextMenuExpanded ->
                         // Swipe <---->
                         LeftDeleteSwipeWrapper(
                             right = SwipeInfo(
                                 veto = true,
                                 background = { BgLaunchApp(StartToEnd) },
-                                onSwipe = {
-                                    val index = vm.records.indexOfFirst { it.id == record.id }
-                                    val record = vm.records[index]
-
-                                    // Navigate to the default app, open the conversation to this number.
-                                    if (!record.read) {
-                                        // 1. update db
-                                        vm.table.markAsRead(ctx, record.id)
-                                        // 2. update UI
-                                        vm.records[index] = vm.records[index].copy(read = true)
-                                    }
-                                    when (vm.forType) {
-                                        Def.ForNumber -> Launcher.openCallConversation(
-                                            ctx,
-                                            record.peer
-                                        )
-
-                                        Def.ForSms -> Launcher.openSMSConversation(ctx, record.peer)
-                                    }
-                                }
+                                onSwipe = onOpen
                             ),
                             left = SwipeInfo(
-                                onSwipe = {
-                                    val index = vm.records.indexOfFirst { it.id == record.id }
-                                    val rec = vm.records[index]
-
-                                    // 1. delete from db
-                                    vm.table.deleteById(ctx, rec.id)
-
-                                    // 2. remove from ArrayList
-                                    vm.records.removeAt(index)
-
-                                    // 3. show snackbar
-                                    SnackBar.show(
-                                        coroutineScope,
-                                        rec.peer,
-                                        ctx.getString(R.string.undelete),
-                                    ) {
-                                        vm.table.addWithId(ctx, rec)
-                                        vm.records.add(index, rec)
-                                    }
-                                },
+                                onSwipe = onDelete
                             )
                         ) {
                             HistoryCard(
@@ -256,7 +269,10 @@ fun HistoryList(
                                     onLongClick = {
                                         contextMenuExpanded.value = true
                                     }
-                                )
+                                ),
+                                onMenuClick = {
+                                    contextMenuExpanded.value = true
+                                }
                             )
                         }
                     }

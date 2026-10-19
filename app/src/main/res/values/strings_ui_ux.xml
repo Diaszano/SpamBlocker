@@ -53,4 +53,6 @@
     <string name="permission_required_desc" translatable="false">Call or SMS permissions are missing. Protection cannot filter calls or messages without granted permissions.</string>
     <string name="permission_call_screening_missing" translatable="false">Call screening permission missing</string>
     <string name="permission_sms_missing" translatable="false">SMS receiving permission missing</string>
+    <string name="open_sms" translatable="false">Open SMS</string>
+    <string name="more_options" translatable="false">More options</string>
 </resources>
