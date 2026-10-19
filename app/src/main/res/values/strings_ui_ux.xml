@@ -43,4 +43,13 @@
     <string name="appearance_system" translatable="false">System</string>
     <string name="appearance_light" translatable="false">Light</string>
     <string name="appearance_dark" translatable="false">Dark</string>
+    <string name="protection" translatable="false">Protection</string>
+    <string name="protection_status_active" translatable="false">Active</string>
+    <string name="protection_status_paused" translatable="false">Paused</string>
+    <string name="protection_status_permission_required" translatable="false">Permission required</string>
+    <string name="protection_status_channels_off" translatable="false">Channels disabled</string>
+    <string name="protection_status_off" translatable="false">Off</string>
+    <string name="permission_required_desc" translatable="false">Call or SMS permissions are missing. Protection cannot filter calls or messages without granted permissions.</string>
+    <string name="permission_call_screening_missing" translatable="false">Call screening permission missing</string>
+    <string name="permission_sms_missing" translatable="false">SMS receiving permission missing</string>
 </resources>

@@ -232,7 +232,7 @@ class spf { // for namespace only
         var isTestIconClicked by bool("testing_icon_clicked")
 
         // ---- Settings below will not be backed up ----
-        var activeTab by str("active_tab", "setting")
+        var activeTab by str("active_tab", Def.CALL_TAB_ROUTE)
 
         var hasPromptedForRunningInWorkProfile by bool("warn_running_in_work_profile_once")
         var isDoubleSMSWarningDismissed by bool("warn_double_sms")

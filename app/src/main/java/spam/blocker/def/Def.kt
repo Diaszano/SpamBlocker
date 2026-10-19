@@ -7,7 +7,15 @@ object Def {
     // tabs route
     const val CALL_TAB_ROUTE = "call"
     const val SMS_TAB_ROUTE = "sms"
+    const val PROTECTION_TAB_ROUTE = "protection"
     const val SETTING_TAB_ROUTE = "setting"
+
+    fun resolveStartTab(savedRoute: String): String {
+        return when (savedRoute) {
+            CALL_TAB_ROUTE, SMS_TAB_ROUTE, SETTING_TAB_ROUTE, PROTECTION_TAB_ROUTE -> savedRoute
+            else -> CALL_TAB_ROUTE
+        }
+    }
 
     // for block mode: answer + hang-up
     const val DEFAULT_HANG_UP_DELAY = 1 // second

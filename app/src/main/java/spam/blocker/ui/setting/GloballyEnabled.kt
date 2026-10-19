@@ -1,7 +1,6 @@
 package spam.blocker.ui.setting
 
 import android.os.Build
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import spam.blocker.G
 import spam.blocker.R
@@ -23,9 +24,10 @@ import spam.blocker.def.Def
 import spam.blocker.ui.M
 import spam.blocker.ui.widgets.AnimatedVisibleV
 import spam.blocker.ui.widgets.Button
-import spam.blocker.ui.widgets.ColumnSpaced
 import spam.blocker.ui.widgets.GreenDot
 import spam.blocker.ui.widgets.HtmlText
+import spam.blocker.ui.widgets.LabelItem
+import spam.blocker.ui.widgets.MenuButton
 import spam.blocker.ui.widgets.PopupDialog
 import spam.blocker.ui.widgets.ResIcon
 import spam.blocker.ui.widgets.ResImage
@@ -85,6 +87,13 @@ fun GloballyEnabled() {
 
     var mmsEnabled by remember { mutableStateOf(checkMmsState()) }
 
+    val isPaused = PauseHelper.isPaused(G.pausedUntil.value)
+    val remainingMinutes = if (isPaused) PauseHelper.remainingMinutes(G.pausedUntil.value) else 0
+
+    val isCallPermMissing = G.callEnabled.value && !Permission.callScreening.isGranted
+    val isSmsPermMissing = G.smsEnabled.value && !Permission.receiveSMS.isGranted
+    val permissionRequired = isCallPermMissing || isSmsPermMissing
+
     val doubleSmsWarningTrigger = remember { mutableStateOf(false) }
 
     if (doubleSmsWarningTrigger.value) {
@@ -106,6 +115,14 @@ fun GloballyEnabled() {
             HtmlText(Str(R.string.warning_double_sms))
         }
     }
+
+    // Refresh permissions on resume
+    LifecycleResumeEffect(Unit) {
+        Permission.init(ctx)
+        mmsEnabled = checkMmsState()
+        onPauseOrDispose { }
+    }
+
     // Show warnings `onResume`
     // - double sms notification
     LifecycleResumeEffect(G.smsEnabled.value) {
@@ -150,61 +167,147 @@ fun GloballyEnabled() {
                             toggleCollapse()
                         }
                     }
+                    if (G.globallyEnabled.value && !isPaused) {
+                        val pauseItems = remember {
+                            listOf(
+                                LabelItem(label = ctx.getString(R.string.pause_15m)) {
+                                    pauseBlocking(ctx, 15 * 60 * 1000L)
+                                    it.value = false
+                                },
+                                LabelItem(label = ctx.getString(R.string.pause_1h)) {
+                                    pauseBlocking(ctx, 60 * 60 * 1000L)
+                                    it.value = false
+                                },
+                                LabelItem(label = ctx.getString(R.string.pause_8h)) {
+                                    pauseBlocking(ctx, 8 * 60 * 60 * 1000L)
+                                    it.value = false
+                                }
+                            )
+                        }
+                        MenuButton(
+                            label = Str(R.string.pause_blocking),
+                            items = pauseItems,
+                            color = C.textGrey,
+                            modifier = M.padding(end = 4.dp)
+                        )
+                    }
                     SwitchBox(G.globallyEnabled.value) { enabled ->
                         setGlobalEnabled(ctx, enabled)
                         collapsed = spfGlobal.isCollapsed
                     }
                 }
             )
+
+            if (isPaused) {
+                RowVCenterSpaced(8, modifier = M.padding(horizontal = 12.dp, vertical = 4.dp)) {
+                    ResImage(R.drawable.ic_hourglass, C.warning, M.size(16.dp))
+                    Text(
+                        text = Str(R.string.paused_remaining).format(remainingMinutes),
+                        color = C.warning,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    StrokeButton(
+                        label = Str(R.string.resume),
+                        color = C.teal200,
+                    ) {
+                        resumeBlocking(ctx)
+                    }
+                }
+            }
+
+            if (permissionRequired) {
+                RowVCenterSpaced(8, modifier = M.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    ResImage(R.drawable.ic_warning, C.warning, M.size(16.dp))
+                    Text(
+                        text = Str(R.string.permission_required_desc),
+                        color = C.warning,
+                        fontSize = 12.sp,
+                        modifier = M.weight(1f)
+                    )
+                    StrokeButton(
+                        label = Str(R.string.grant_permissions),
+                        color = C.warning
+                    ) {
+                        val toAsk = mutableListOf<PermissionWrapper>()
+                        if (isCallPermMissing) toAsk.add(PermissionWrapper(Permission.callScreening))
+                        if (isSmsPermMissing) toAsk.add(PermissionWrapper(Permission.receiveSMS))
+                        G.permissionChain.ask(ctx, toAsk) {
+                            Permission.init(ctx)
+                            mmsEnabled = checkMmsState()
+                        }
+                    }
+                }
+            }
+
             AnimatedVisibleV (!collapsed) {
                 Column(modifier = M.padding(start = 16.dp)) {
-                    LabeledRow(
-                        labelId = R.string.call,
-                    ) {
-                        SwitchBox(checked = G.callEnabled.value, onCheckedChange = { isTurningOn ->
-                            if (isTurningOn) {
-                                G.permissionChain.ask(
-                                    ctx,
-                                    listOf(
-                                        PermissionWrapper(Permission.callScreening),
-                                    )
-                                ) { granted ->
-                                    if (granted) {
-                                        spfGlobal.isCallEnabled = true
-                                        G.callEnabled.value = true
+                    Column {
+                        LabeledRow(
+                            labelId = R.string.call,
+                        ) {
+                            SwitchBox(checked = G.callEnabled.value, onCheckedChange = { isTurningOn ->
+                                if (isTurningOn) {
+                                    G.permissionChain.ask(
+                                        ctx,
+                                        listOf(
+                                            PermissionWrapper(Permission.callScreening),
+                                        )
+                                    ) { granted ->
+                                        if (granted) {
+                                            spfGlobal.isCallEnabled = true
+                                            G.callEnabled.value = true
+                                        }
                                     }
+                                } else {
+                                    spfGlobal.isCallEnabled = false
+                                    G.callEnabled.value = false
                                 }
-                            } else {
-                                spfGlobal.isCallEnabled = false
-                                G.callEnabled.value = false
-                            }
-                        })
+                            })
+                        }
+                        if (isCallPermMissing) {
+                            Text(
+                                text = Str(R.string.permission_call_screening_missing),
+                                color = C.warning,
+                                fontSize = 11.sp,
+                                modifier = M.padding(start = 12.dp, bottom = 4.dp)
+                            )
+                        }
                     }
 
-                    LabeledRow(
-                        labelId = R.string.sms,
-                        helpTooltip = Str(R.string.help_enable_for_sms).format(Str(R.string.warning_double_sms))
-                    ) {
-                        SwitchBox(checked = G.smsEnabled.value, onCheckedChange = { isTurningOn ->
-                            if (isTurningOn) {
-                                G.permissionChain.ask(
-                                    ctx,
-                                    listOf(
-                                        PermissionWrapper(Permission.receiveSMS),
-                                        // isOptional because some might prefer "Optimized" than "Unrestricted"
-                                        PermissionWrapper(Permission.batteryUnRestricted, isOptional = true),
-                                    )
-                                ) { granted ->
-                                    if (granted) {
-                                        spfGlobal.isSmsEnabled = true
-                                        G.smsEnabled.value = true
+                    Column {
+                        LabeledRow(
+                            labelId = R.string.sms,
+                            helpTooltip = Str(R.string.help_enable_for_sms).format(Str(R.string.warning_double_sms))
+                        ) {
+                            SwitchBox(checked = G.smsEnabled.value, onCheckedChange = { isTurningOn ->
+                                if (isTurningOn) {
+                                    G.permissionChain.ask(
+                                        ctx,
+                                        listOf(
+                                            PermissionWrapper(Permission.receiveSMS),
+                                            PermissionWrapper(Permission.batteryUnRestricted, isOptional = true),
+                                        )
+                                    ) { granted ->
+                                        if (granted) {
+                                            spfGlobal.isSmsEnabled = true
+                                            G.smsEnabled.value = true
+                                        }
                                     }
+                                } else {
+                                    spfGlobal.isSmsEnabled = false
+                                    G.smsEnabled.value = false
                                 }
-                            } else {
-                                spfGlobal.isSmsEnabled = false
-                                G.smsEnabled.value = false
-                            }
-                        })
+                            })
+                        }
+                        if (isSmsPermMissing) {
+                            Text(
+                                text = Str(R.string.permission_sms_missing),
+                                color = C.warning,
+                                fontSize = 11.sp,
+                                modifier = M.padding(start = 12.dp, bottom = 4.dp)
+                            )
+                        }
                     }
 
                     AnimatedVisibleV(G.smsEnabled.value) {
@@ -248,7 +351,6 @@ fun GloballyEnabled() {
             }
         }
     }
-
 }
 
 @Composable
@@ -256,22 +358,65 @@ fun GloballyEnabledSummary() {
     val ctx = LocalContext.current
     val C = G.palette
     val spf = spf.Global(ctx)
-    G.globallyEnabled
-    G.callEnabled
-    G.smsEnabled
+
+    val isPaused = PauseHelper.isPaused(G.pausedUntil.value)
+    val isCallPermMissing = G.callEnabled.value && !Permission.callScreening.isGranted
+    val isSmsPermMissing = G.smsEnabled.value && !Permission.receiveSMS.isGranted
+    val permissionRequired = isCallPermMissing || isSmsPermMissing
+    val anyChannelEnabled = G.callEnabled.value || G.smsEnabled.value
+
+    val summary = protectionSummary(
+        globalEnabled = G.globallyEnabled.value,
+        paused = isPaused,
+        permissionRequired = permissionRequired,
+        anyChannelEnabled = anyChannelEnabled,
+    )
 
     val mmsEnabled = remember { spf.isMmsEnabled }
-    if (G.globallyEnabled.value) {
-        RowVCenterSpaced(4) {
-            GreenDot()
-
-            GloballyEnabledSummaryIcons(mmsEnabled)
+    when (summary) {
+        ProtectionSummary.ACTIVE -> {
+            RowVCenterSpaced(4) {
+                GreenDot()
+                GloballyEnabledSummaryIcons(mmsEnabled)
+            }
         }
-    } else {
-        ResImage(
-            R.drawable.ic_tile,
-            C.disabled,
-            M.size(20.dp)
-        )
+        ProtectionSummary.PAUSED -> {
+            RowVCenterSpaced(4) {
+                ResImage(R.drawable.ic_hourglass, C.warning, M.size(16.dp))
+                Text(
+                    text = Str(R.string.protection_status_paused),
+                    color = C.warning,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+        ProtectionSummary.PERMISSION_REQUIRED -> {
+            RowVCenterSpaced(4) {
+                ResImage(R.drawable.ic_warning, C.warning, M.size(16.dp))
+                Text(
+                    text = Str(R.string.protection_status_permission_required),
+                    color = C.warning,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+        ProtectionSummary.CHANNELS_OFF -> {
+            RowVCenterSpaced(4) {
+                Text(
+                    text = Str(R.string.protection_status_channels_off),
+                    color = C.disabled,
+                    fontSize = 12.sp
+                )
+            }
+        }
+        ProtectionSummary.OFF -> {
+            ResImage(
+                R.drawable.ic_tile,
+                C.disabled,
+                M.size(20.dp)
+            )
+        }
     }
 }

@@ -32,6 +32,7 @@ import spam.blocker.ui.history.HistoryOptions.showHistoryBlocked
 import spam.blocker.ui.history.HistoryOptions.showHistoryPassed
 import spam.blocker.ui.history.HistoryScreen
 import spam.blocker.ui.isLight
+import spam.blocker.ui.setting.ProtectionScreen
 import spam.blocker.ui.setting.SettingScreen
 import spam.blocker.ui.theme.AppTheme
 import spam.blocker.ui.widgets.BottomBar
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
         // language
         Util.setLocale(ctx, spf.language)
 
-        val lastTab = spf.activeTab
+        val lastTab = Def.resolveStartTab(spf.activeTab)
 
         G.bottomBarVM = BottomBarViewModel(
             onTabSelected = { spf.activeTab = it },
@@ -113,6 +114,15 @@ class MainActivity : ComponentActivity() {
                     },
                 ) {
                     HistoryScreen(G.smsVM)
+                },
+                TabItem(
+                    route = Def.PROTECTION_TAB_ROUTE,
+                    label = ctx.resources.getString(R.string.protection),
+                    icon = R.drawable.ic_shield,
+                    isSelected = mutableStateOf(lastTab == Def.PROTECTION_TAB_ROUTE),
+                    badgeText = { null },
+                ) {
+                    ProtectionScreen()
                 },
                 TabItem(
                     route = Def.SETTING_TAB_ROUTE,

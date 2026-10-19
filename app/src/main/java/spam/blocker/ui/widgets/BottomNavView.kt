@@ -97,7 +97,7 @@ fun BottomBar(vm: BottomBarViewModel) {
             modifier = M.selectableGroup().padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            // 3 tab items
+            // 4 tab items
             vm.tabItems.forEach { tab ->
                 Surface( // for the round clicking ripple
                     shape = RoundedCornerShape(30.dp),
