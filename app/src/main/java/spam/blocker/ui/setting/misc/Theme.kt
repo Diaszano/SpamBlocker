@@ -57,7 +57,7 @@ fun Theme() {
     val choice = G.currentThemeChoice.value
     val themeSpf = remember { spf.Theme(ctx) }
 
-    val familyItems = remember {
+    val familyItems = remember(systemIsDark, ctx) {
         listOf(
             LabelItem(
                 id = ThemeFamily.TRUECALLER.name,
@@ -97,7 +97,7 @@ fun Theme() {
         )
     }
 
-    val appearanceItems = remember {
+    val appearanceItems = remember(systemIsDark, ctx) {
         listOf(
             LabelItem(
                 id = ThemeAppearance.SYSTEM.name,

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -12,6 +13,14 @@ import spam.blocker.util.spf
 
 @RunWith(AndroidJUnit4::class)
 class ThemePersistenceTest {
+
+    @After
+    fun tearDown() {
+        val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val palette = spf.Palette(ctx)
+        palette.prefs.edit().remove("color_text").apply()
+        palette.restoreCustom()
+    }
 
     @Test
     fun testCustomColorPreservedWhenSwitchingThemes() {
