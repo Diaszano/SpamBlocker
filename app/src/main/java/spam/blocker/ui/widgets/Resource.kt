@@ -22,6 +22,10 @@ fun Str(strId: Int): String {
     return stringResource(id = strId)
 }
 @SuppressLint("ComposableNaming") @Composable
+fun Str(strId: Int, vararg formatArgs: Any): String {
+    return stringResource(id = strId, formatArgs = formatArgs)
+}
+@SuppressLint("ComposableNaming") @Composable
 fun PluralStr(count: Int, strId: Int): String {
     return pluralStringResource(id = strId, count = count, formatArgs = arrayOf(count))
 }

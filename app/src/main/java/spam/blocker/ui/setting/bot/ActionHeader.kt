@@ -173,7 +173,7 @@ fun ActionPresetCard(
         // Tooltip
         BalloonQuestionMark(
             tooltip = action.tooltip(ctx),
-//            onLinkClick = action.onTooltipLinkClick(ctx),
+            contentDescription = Str(R.string.help_info, action.label(ctx)),
         )
     }
 }

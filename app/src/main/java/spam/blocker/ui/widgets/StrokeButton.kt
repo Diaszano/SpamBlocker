@@ -9,6 +9,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,9 +54,8 @@ const val BUTTON_CORNER_RADIUS = 4
 const val BUTTON_H_PADDING = 12
 const val BUTTON_H = 26
 
-// The built-in Button is based on Surface, which has a minimal width as 48dp,
-//  as: minimumInteractiveComponentSize
-// So customize the Button to get rid of it.
+// Interactive click targets are at least 48 dp to meet accessibility standards
+// while preserving compact visual padding.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Button(
@@ -65,26 +68,35 @@ fun Button(
     backgroundColor: Color = Color.Unspecified,
     shape: Shape = RoundedCornerShape(BUTTON_CORNER_RADIUS.dp),
     contentPadding: PaddingValues = PaddingValues(BUTTON_H_PADDING.dp, 0.dp),
+    contentDescription: String? = null,
+    onClickLabel: String? = null,
     onClick: Lambda? = null,
 ) {
     val C = G.palette
 
     Box(
         modifier = modifier
-            .heightIn(min = BUTTON_H.dp)
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
             .border(
                 width = borderWidth,
                 color = if (enabled) borderColor else C.disabled,
                 shape = shape
             )
-            .clip(RoundedCornerShape(BUTTON_CORNER_RADIUS.dp))
+            .clip(shape)
             .background(backgroundColor)
 
             .thenIf(enabled) {
                 combinedClickable(
+                    role = Role.Button,
+                    onClickLabel = onClickLabel,
                     onClick = { onClick?.let { it() } },
                     onLongClick = { onLongClick?.invoke() }
                 )
+            }
+            .thenIf(contentDescription != null) {
+                semantics {
+                    this.contentDescription = contentDescription!!
+                }
             },
         propagateMinConstraints = true
     ) {
@@ -107,13 +119,17 @@ fun StrokeButton(
     shape: RoundedCornerShape = RoundedCornerShape(BUTTON_CORNER_RADIUS.dp),
     contentPadding: PaddingValues = PaddingValues(BUTTON_H_PADDING.dp, 0.dp),
     enabled: Boolean = true,
+    contentDescription: String? = null,
+    onClickLabel: String? = null,
     onClick: Lambda? = null,
 ) {
     Button(
-        modifier = modifier.heightIn(min = BUTTON_H.dp),
+        modifier = modifier,
         enabled = enabled,
         onLongClick = onLongClick,
         contentPadding = contentPadding,
+        contentDescription = contentDescription ?: label,
+        onClickLabel = onClickLabel,
         borderColor = color,
         shape = shape,
         onClick = onClick,
@@ -143,7 +159,7 @@ fun ToggleButton(
         modifier = modifier.wrapContentSize()
     ) {
         Button(
-            modifier = modifier,
+            modifier = Modifier,
             borderWidth = if (enabled) 2.dp else 1.dp,
             borderColor = if (enabled) C.textGrey else C.disabled,
             content = content,
@@ -170,6 +186,7 @@ fun GreyButton(
     // optional
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    contentDescription: String? = null,
     onClick: Lambda? = null,
 ) {
     StrokeButton(
@@ -177,6 +194,7 @@ fun GreyButton(
         color = G.palette.textGrey,
         modifier = modifier,
         enabled = enabled,
+        contentDescription = contentDescription,
         onClick = onClick,
     )
 }
@@ -196,6 +214,7 @@ fun FooterButton(
     footerOffset: Pair<Int, Int> = Pair(-3, -3),
 
     onLongClick: Lambda? = null,
+    contentDescription: String? = null,
     onClick: Lambda? = null,
 ) {
     val C = G.palette
@@ -207,9 +226,10 @@ fun FooterButton(
             label = label,
             icon = icon,
             color = color,
-            modifier = modifier,
+            modifier = Modifier,
             onClick = onClick,
             enabled = enabled,
+            contentDescription = contentDescription,
             onLongClick = onLongClick,
         )
 

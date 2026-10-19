@@ -58,7 +58,12 @@ fun SettingItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SettingLabel(labelId, Modifier.weight(1f))
-        helpTooltip?.let { BalloonQuestionMark(it) }
+        helpTooltip?.let {
+            BalloonQuestionMark(
+                tooltip = it,
+                contentDescription = stringResource(R.string.help_info, stringResource(labelId))
+            )
+        }
         value?.let {
             Box(
                 modifier = Modifier

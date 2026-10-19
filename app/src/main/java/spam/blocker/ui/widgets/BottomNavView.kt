@@ -12,12 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
@@ -108,40 +108,40 @@ fun BottomBar(vm: BottomBarViewModel) {
                             .width(itemWidth.dp)
                             .background(C.dialogBg)
                             .padding(vertical = 4.dp)
-                            .clickable {
-                                val currentRoute = vm.tabItems.firstOrNull { it.isSelected.value }?.route
+                            .selectable(
+                                selected = tab.isSelected.value,
+                                role = Role.Tab,
+                                onClick = {
+                                    val currentRoute = vm.tabItems.firstOrNull { it.isSelected.value }?.route
 
-                                if (currentRoute == tab.route) { // reselect current tab
-                                    vm.onTabReSelected(tab.route)
-                                } else { // select new tab
-                                    currentRoute?.let {
-                                        vm.onTabLeave(it)
+                                    if (currentRoute == tab.route) { // reselect current tab
+                                        vm.onTabReSelected(tab.route)
+                                    } else { // select new tab
+                                        currentRoute?.let {
+                                            vm.onTabLeave(it)
+                                        }
+
+                                        // Keep exactly one selected tab.
+                                        vm.tabItems.forEach {
+                                            it.isSelected.value = it.route == tab.route
+                                        }
+
+                                        vm.onTabSelected(tab.route)
                                     }
-
-                                    // Keep exactly one selected tab.
-                                    vm.tabItems.forEach {
-                                        it.isSelected.value = it.route == tab.route
-                                    }
-
-                                    vm.onTabSelected(tab.route)
                                 }
-                            }
+                            )
                     ) {
                         val badgeText = tab.badgeText()
 
                         BadgedBox(
                             badge = {
                                 badgeText?.let {
-                                    CompositionLocalProvider( // lock the sim number size regardless of system font scaling
-                                        LocalDensity provides Density(density = LocalDensity.current.density, fontScale = 1f)
+                                    Badge(
+                                        modifier = M.offset(x = 8.dp, y = (-2).dp),
+                                        containerColor = C.error,
+                                        contentColor = White
                                     ) {
-                                        Badge(
-                                            modifier = M.offset(x = 8.dp, y = (-2).dp),
-                                            containerColor = C.error,
-                                            contentColor = White
-                                        ) {
-                                            Text(text = badgeText)
-                                        }
+                                        Text(text = badgeText)
                                     }
                                 }
                             }

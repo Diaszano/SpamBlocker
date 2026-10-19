@@ -290,7 +290,10 @@ fun TrainingDialog(trigger: MutableState<Boolean>) {
             trigger = trigger,
             buttons = {
                 RowVCenterSpaced(12) {
-                    BalloonQuestionMark(Str(R.string.help_local_ai_training))
+                    BalloonQuestionMark(
+                        tooltip = Str(R.string.help_local_ai_training),
+                        contentDescription = Str(R.string.help_info, Str(R.string.training))
+                    )
 
                     // Test Button
                     StrokeButton(Str(R.string.test), color = G.palette.teal200) {

@@ -2,6 +2,10 @@
 <resources>
     <string name="section_collapsed" translatable="false">Collapsed</string>
     <string name="section_expanded" translatable="false">Expanded</string>
+    <string name="expand" translatable="false">Expand</string>
+    <string name="collapse" translatable="false">Collapse</string>
+    <string name="help" translatable="false">Help</string>
+    <string name="help_info" translatable="false">Help: %s</string>
     <string name="signals" translatable="false">Signals</string>
     <string name="exceptions" translatable="false">Exceptions</string>
     <string name="context_rules" translatable="false">Context</string>

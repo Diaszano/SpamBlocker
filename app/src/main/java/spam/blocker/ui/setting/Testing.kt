@@ -119,7 +119,10 @@ fun TestDialog(
         title = {
             RowVCenter {
                 GreyLabel(Str(R.string.title_rule_testing))
-                BalloonQuestionMark(Str(R.string.help_test_rules))
+                BalloonQuestionMark(
+                    tooltip = Str(R.string.help_test_rules),
+                    contentDescription = Str(R.string.help_info, Str(R.string.title_rule_testing))
+                )
             }
         },
         buttons = {

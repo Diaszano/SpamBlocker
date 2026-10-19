@@ -3,6 +3,9 @@ package spam.blocker.ui.widgets
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,9 +18,14 @@ import androidx.compose.material3.TooltipState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import spam.blocker.G
@@ -123,19 +131,38 @@ fun BalloonWrapper(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BalloonQuestionMark(tooltip: String, size: Int = 18) {
+fun BalloonQuestionMark(
+    tooltip: String,
+    size: Int = 18,
+    contentDescription: String? = null,
+) {
+    val description = contentDescription ?: stringResource(R.string.help)
+    val actionLabel = stringResource(R.string.help)
     BalloonWrapper(
         tooltip = tooltip,
     ) { tooltipState ->
         val scope = rememberCoroutineScope()
-        ResImage(
-            R.drawable.ic_question_circle, G.palette.disabled, M
-                .width(size.dp)
-                .clickable { // put before `.padding` for larger clicking area
+        Box(
+            modifier = Modifier
+                .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                .clickable(
+                    role = Role.Button,
+                    onClickLabel = actionLabel,
+                ) {
                     scope.launch {
                         tooltipState.show()
                     }
                 }
-        )
+                .semantics {
+                    this.contentDescription = description
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            ResImage(
+                R.drawable.ic_question_circle,
+                G.palette.disabled,
+                M.size(size.dp)
+            )
+        }
     }
 }
