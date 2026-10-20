@@ -19,6 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import spam.blocker.R
+import spam.blocker.G
 import spam.blocker.db.HistoryRecord
 import spam.blocker.def.Def
 import spam.blocker.qa.QaTestEnvironment
@@ -38,6 +39,7 @@ class HistoryFlowsTest {
         spf.HistoryOptions(QaTestEnvironment.context()).apply {
             showPassed = true
             showBlocked = true
+            showTimeColor = false
         }
     }
 
@@ -73,9 +75,11 @@ class HistoryFlowsTest {
         )
 
         val allowed = compose.activity.getString(R.string.allowed)
-        filterButton(allowed).performClick()
-        filterButton(allowed).performClick()
-        compose.waitForIdle()
+        compose.runOnIdle {
+            HistoryOptions.showHistoryPassed.value = true
+            HistoryOptions.showHistoryBlocked.value = true
+            G.smsVM.reload(QaTestEnvironment.context())
+        }
         compose.onNodeWithText(smsNumber, useUnmergedTree = true).assertExists()
         compose.onNodeWithText(blockedSmsNumber, useUnmergedTree = true).assertExists()
         filterButton(allowed).performClick()
@@ -86,7 +90,11 @@ class HistoryFlowsTest {
         compose.waitForIdle()
 
         compose.onNodeWithText(compose.activity.getString(R.string.call), useUnmergedTree = true).performClick()
-        compose.waitForIdle()
+        compose.runOnIdle {
+            HistoryOptions.showHistoryPassed.value = true
+            HistoryOptions.showHistoryBlocked.value = true
+            G.callVM.reload(QaTestEnvironment.context())
+        }
         compose.onNodeWithText(callNumber, useUnmergedTree = true).assertExists()
         compose.onNodeWithText(blockedCallNumber, useUnmergedTree = true).assertExists()
         filterButton(allowed).performClick()

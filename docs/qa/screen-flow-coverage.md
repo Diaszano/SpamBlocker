@@ -1,87 +1,81 @@
-# Screen and flow coverage map
+# Screen and flow coverage
 
-This map follows the current Compose UI and support activities. Existing tests are listed separately from the planned emulator owners; Task 8 will replace planned references with actual evidence and limitations.
+This inventory records the current emulator/JVM evidence and the remaining limits. “Shown” means a Compose node was reached or asserted; it does not mean its action was exercised. The isolated instrumentation target is `spam.blocker.qa`.
 
 ## Main destinations
 
-| Destination / state | Interactive action or behavior | Test owner / limit |
+| Destination | Action / state | Current evidence or limit |
 |---|---|---|
-| Calls | Select Calls; switch away and back; unread badge and mark-as-read on tab leave | [`MainNavigationTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/main/MainNavigationTest.kt) (planned); [`TabRouteTest.kt`](../../app/src/test/java/spam/blocker/ui/main/TabRouteTest.kt) (route logic) |
-| Calls | Re-select Calls to open the system dialer | `MainNavigationTest.kt` with intercepted intent; real dialer/device call behavior is outside the QA test |
-| Calls | Search, clear search, Allowed/Blocked filters, retry, empty/content/error/loading states | [`HistoryFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/history/HistoryFlowsTest.kt) (planned); [`HistoryEmptyTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/history/HistoryEmptyTest.kt), [`HistoryEmptyUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/history/HistoryEmptyUnitTest.kt) (existing state coverage) |
-| Calls | Global blocking toggle, pause 15m/1h/8h, resume, paused countdown | `HistoryFlowsTest.kt` (planned); [`PauseLogicTest.kt`](../../app/src/test/java/spam/blocker/util/PauseLogicTest.kt) (time boundaries) |
-| Calls | Open record, test number, copy, search online/configure URL, add/edit regex, block prefix, delete | `HistoryFlowsTest.kt` with local fixture data and intercepted intents; external browser/network lookup is not executed |
-| Calls | Report spam: open, cancel, choose category, submit | `HistoryFlowsTest.kt`; submission is limited to local UI/result because no report-service fixture is configured |
-| Calls | FAB history options: logging, row count, retention, allowed/blocked/indicator/location/carrier/SIM/time-color display and color editor | `HistoryFlowsTest.kt` (planned); real carrier, SIM and call-log availability depend on Android/device and are not validated |
-| SMS | Select SMS; unread badge and mark-as-read on tab leave; search, clear, filters, retry and list states | `MainNavigationTest.kt`, `HistoryFlowsTest.kt` (planned); `HistoryEmptyTest.kt` and `HistoryEmptyUnitTest.kt` (existing empty-state coverage) |
-| SMS | Re-select SMS to open the default SMS app | `MainNavigationTest.kt` with intercepted intent; sending/receiving carrier SMS is not tested |
-| SMS | Open conversation, test number/content, copy, search online/configure URL, add/edit regex, block prefix, delete | `HistoryFlowsTest.kt` with QA fixture and intercepted intents; real conversation/browser is not opened |
-| SMS | Report spam and history FAB options | `HistoryFlowsTest.kt`; report network and real SMS/call-log providers are outside the fixture boundary |
-| Protection | Global enable, call/SMS channel toggles, paused/permission-required/channel-off/active summary | [`ProtectionFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/setting/ProtectionFlowsTest.kt) (planned); [`ProtectionSummaryTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/ProtectionSummaryTest.kt) (existing decision logic) |
-| Protection | Expand/collapse Quick rules, Regex rules; search rule lists; enable/disable each rule; edit and save/cancel dialogs | `ProtectionFlowsTest.kt` (planned); [`RegexStateUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/regex/RegexStateUnitTest.kt) (existing serialization) |
-| Protection | Rule tester FAB, test inputs/results, priority-conflict dialog and ignore/resolve paths | `ProtectionFlowsTest.kt` (planned); actual call/SMS screening remains covered only by local rule instrumentation, not live telecom services |
+| Calls | Select Calls and move among all four tabs | [`MainNavigationTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/main/MainNavigationTest.kt): all four tabs select; Calls/SMS reselection is intercepted. Exact dialer behavior is outside the test. |
+| Calls | Render allowed and blocked fixture records; toggle Allowed filter | [`HistoryFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/history/HistoryFlowsTest.kt): both record types appear; disabling Allowed hides only the allowed record. Search/clear, Blocked toggle, retry and loading/error UI are not exercised in Compose. Empty/filter-state logic is covered by [`HistoryEmptyTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/history/HistoryEmptyTest.kt) and [`HistoryEmptyUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/history/HistoryEmptyUnitTest.kt). |
+| Calls | Global blocking, pause/resume; open/expand record; test, copy, search online, add/edit regex, block prefix, spam DB, delete, report | Not exercised by the current history emulator test. Search/browser, call-log, report API and call actions need controlled UI/service fixtures; no external handler or report endpoint is run. |
+| Calls | History FAB: logging, retention, row count, display toggles, SIM/time-color editor, delete all | Not exercised by the current emulator test. Real SIM/carrier/call-log data is device-owned. |
+| SMS | Select SMS and show allowed/blocked fixture records; toggle Allowed filter | `MainNavigationTest.kt` and `HistoryFlowsTest.kt`; fixtures are synthetic and stored only in `spam.blocker.qa`. Search/clear, Blocked toggle, retry, empty/error UI and mark-read badge changes are not exercised by Compose. |
+| SMS | Re-select SMS, open conversation, test/copy, search online, regex/prefix/database/delete, report, history FAB | Not exercised by the current emulator test. Real SMS app, carrier and report/API behavior are not invoked. |
+| Protection | Select screen and expose all quick/additional rule labels | [`ProtectionFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/setting/ProtectionFlowsTest.kt): traverses the visible rule labels. It does not toggle or configure them. State precedence is covered by [`ProtectionSummaryTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/ProtectionSummaryTest.kt); pause boundaries by [`PauseLogicTest.kt`](../../app/src/test/java/spam/blocker/util/PauseLogicTest.kt). |
+| Protection | Global/call/SMS toggles, pause/resume, permissions, rule dialogs, test FAB, priority conflicts | Not exercised by the current emulator test. [`RuleTest.kt`](../../app/src/androidTest/java/spam/blocker/service/RuleTest.kt) covers local screening logic, including the known `database_prefix` baseline failure; it does not simulate carrier or live-call behavior. |
 
-## Protection quick rules
+## 14 quick rule controls
 
-Each row below is independently exercised in `ProtectionFlowsTest.kt` using QA-owned preferences; permission-gated actions use granted/denied test states where the Android test API supports them.
+`ProtectionFlowsTest.kt` scrolls to and asserts the displayed label for each row. Toggle, configuration, permission and service behavior remains untested in Compose unless stated below.
 
-| Quick rule | Visible action / state | Test owner / limit |
-|---|---|---|
-| Contacts | Enable/disable and request contacts access | `ProtectionFlowsTest.kt`; contacts data is fixture-only |
-| STIR | Include/exclude unverified caller status | `ProtectionFlowsTest.kt`; carrier STIR/SHAKEN data is not generated by the emulator |
-| SpamDB | Add/find/remove number, expiry/cleanup options | `ProtectionFlowsTest.kt`; database state stays in QA package |
-| LocalAI | Toggle, open training view, filter spam/ham/unlabeled examples, train/save | `ProtectionFlowsTest.kt`; only local seeded examples/model are used |
-| RepeatedCall | Toggle repeated-call exception and configure SMS-related option | `ProtectionFlowsTest.kt`; no incoming call or SMS is generated |
-| Dialed | Toggle dialed-number exception and SMS option | `ProtectionFlowsTest.kt`; call-log/SMS permissions are controlled, provider contents remain synthetic |
-| Answered | Toggle answered-call exception and configure period | `ProtectionFlowsTest.kt`; no real answered call is produced |
-| OffTime | Enable/disable and set schedule | `ProtectionFlowsTest.kt`; schedule arithmetic remains deterministic |
-| EmergencySituation | Configure emergency-call allowance and timing | `ProtectionFlowsTest.kt`; no emergency call is placed |
-| RecentApps | Toggle, request usage access, choose/clear apps | `ProtectionFlowsTest.kt`; usage access settings panel is Android-owned and may require a manual grant |
-| MeetingMode | Toggle, request usage access, select meeting apps/configuration | `ProtectionFlowsTest.kt`; calendar/app-usage providers are system-owned |
-| BlockType | Choose call handling mode and permissions | `ProtectionFlowsTest.kt`; no live call is answered or rejected |
-| Notification | Configure channel behavior, repeat/schedule/icon selection | `ProtectionFlowsTest.kt`; notification delivery/timing is Android-owned; selected icon uses a controlled document result |
-| CallerID | Toggle and edit caller-ID text/template/overlay access | `ProtectionFlowsTest.kt`; overlay rendering over a real phone call is not exercised |
+| Rule | Interaction limit |
+|---|---|
+| Contacts | Contacts permission/data and strict/lenient settings not exercised. |
+| STIR | Unverified-caller toggle not exercised; emulator has no carrier attestation. |
+| SpamDB | Add/remove/expiry controls not exercised; local database logic is covered only by existing service tests. |
+| LocalAI | Training/filter/save dialog not exercised; no live SMS training input. |
+| RepeatedCall | Toggle and SMS-related option not exercised; no calls/messages generated. |
+| Dialed | Toggle and permission flow not exercised; call/SMS providers are not populated. |
+| Answered | Toggle and period configuration not exercised; no answered call generated. |
+| OffTime | Toggle/schedule editor not exercised; schedule utility tests remain in [`ScheduleTest.kt`](../../app/src/androidTest/java/spam/blocker/util/ScheduleTest.kt). |
+| EmergencySituation | Configuration not exercised; no emergency call placed. |
+| RecentApps | App selection/usage access not exercised; Android special-access UI is system-owned. |
+| MeetingMode | App selection/usage access not exercised; system usage/calendar data is not altered. |
+| BlockType | Handling mode and call permissions not exercised; no call answered or rejected. |
+| Notification | Channel, repeat, schedule, icon and delivery controls not exercised. |
+| CallerID | Template/overlay toggle not exercised; overlay over a live call is hardware-only. |
 
-## Protection additional rule areas
+## Six additional rule areas
 
-| Area | Visible action / state | Test owner / limit |
-|---|---|---|
-| Number Regex | Search, add/edit/delete rule, enable/disable, preset, validate and save/cancel | `ProtectionFlowsTest.kt`; [`RegexStateUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/regex/RegexStateUnitTest.kt) covers model round-trip; invalid pattern must not be saved |
-| Content Regex | Search, add/edit/delete, enable/disable and validate message-content rule | `ProtectionFlowsTest.kt`; content is synthetic; no real SMS is sent |
-| QuickCopy Regex | Search, add/edit/delete, enable/disable and validate clipboard-matching rule | `ProtectionFlowsTest.kt`; actual cross-app clipboard monitoring is not exercised |
-| PushAlert | Add/edit/remove rules, configure alert and collapse list | `ProtectionFlowsTest.kt`; push notification delivery is not sent to an external service |
-| SmsAlert | Configure matching and alert behavior | `ProtectionFlowsTest.kt`; no SMS is emitted |
-| SmsBomb | Configure repeated-message handling and enable/disable | `ProtectionFlowsTest.kt`; no live message stream is generated |
+`ProtectionFlowsTest.kt` asserts that all six section labels are reachable. Editors, lists and save/delete actions are not currently exercised by emulator tests.
 
-## Settings destination
+| Area | Remaining coverage limit |
+|---|---|
+| Number Regex | Search, preset, add/edit/delete and invalid/valid save flow need UI tests. [`RegexStateUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/regex/RegexStateUnitTest.kt) covers model round-trip only. |
+| Content Regex | Search/editor/save/delete UI and real message integration are not exercised. |
+| QuickCopy Regex | Search/editor/save/delete UI and cross-app clipboard monitoring are not exercised. |
+| PushAlert | Rule list/editor and delivered notifications are not exercised. |
+| SmsAlert | Rule configuration and SMS delivery are not exercised. |
+| SmsBomb | Rule configuration and a live message stream are not exercised. |
 
-| Section / action | Interactive behavior | Test owner / limit |
-|---|---|---|
-| Instant Query | Expand/collapse; choose presets; add/edit/delete API rows; save/cancel and validation | [`SettingsFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/setting/SettingsFlowsTest.kt) (planned); API calls/network are stubbed or not invoked |
-| Report Number | Expand/collapse; presets; add/edit/delete report APIs; enable auto-report and choose types | `SettingsFlowsTest.kt`; report submission is not sent |
-| OAuth setup | Open setup, enter/use token, save/cancel, handle callback | `SettingsFlowsTest.kt` for local editor; [`SupportFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/support/SupportFlowsTest.kt) (planned) for callback; no external credential/browser exchange |
-| Automation | Expand/collapse; presets/templates; create/edit/delete bot; configure trigger/schedule/action; run action test; view logs | `SettingsFlowsTest.kt`; [`BotTemplatesTest.kt`](../../app/src/test/java/spam/blocker/service/bot/BotTemplatesTest.kt) (existing template logic); SMS/call/network actions are intercepted and never executed |
-| Language | Choose supported language and verify displayed strings/persistence | `SettingsFlowsTest.kt`; system locale outside the app is not changed |
-| Theme | Choose theme family and System/Light/Dark mode; edit custom palette; recreate Activity and verify persistence | `SettingsFlowsTest.kt`; [`ThemeSelectionTest.kt`](../../app/src/test/java/spam/blocker/ui/theme/ThemeSelectionTest.kt), [`ThemePresetsTest.kt`](../../app/src/test/java/spam/blocker/ui/theme/ThemePresetsTest.kt), [`ThemePersistenceTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/theme/ThemePersistenceTest.kt) (existing logic/persistence) |
-| Backup / Restore | Choose categories; export; import; cancel; malformed file; missing permission/SAF access | `SettingsFlowsTest.kt` with QA-owned document URI and controlled result; writes stay within test-owned storage; system document picker behavior itself is platform-owned |
-| FAQ | Open question/answer and follow in-app expand/collapse controls | `SettingsFlowsTest.kt`; links to external pages are intercepted/not opened |
-| About | Open app information, copy/export Logcat, open repository link | `SettingsFlowsTest.kt`; external browser and destination file provider are intercepted |
-| Version summary / Logcat | Expand/collapse version summary and copy/export collected log | `SettingsFlowsTest.kt`; real device log volume varies and is not asserted byte-for-byte |
+## Settings
 
-## Support activities and Android-owned flows
+| Section / action | Current evidence or limit |
+|---|---|
+| Instant Query | [`SettingsFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/setting/SettingsFlowsTest.kt) reaches the section heading. Presets, API CRUD/validation and network behavior are not exercised. |
+| Report Number | Section heading is reachable. Presets, auto-report configuration and API requests are not exercised. |
+| OAuth setup | No settings editor/browser exchange test. Matching callback token persistence is tested below with a local intent only. |
+| Automation | Section heading is reachable. Bot CRUD, templates, schedules, action validation/logs are not exercised in Compose; [`BotTemplatesTest.kt`](../../app/src/test/java/spam/blocker/service/bot/BotTemplatesTest.kt) covers template logic. |
+| Language | Miscellaneous section is reachable; changing app/system language is not tested. |
+| Theme | Settings test selects Catppuccin and Dark and checks persisted preference values; [`ThemeSelectionTest.kt`](../../app/src/test/java/spam/blocker/ui/theme/ThemeSelectionTest.kt), [`ThemePresetsTest.kt`](../../app/src/test/java/spam/blocker/ui/theme/ThemePresetsTest.kt) and [`ThemePersistenceTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/theme/ThemePersistenceTest.kt) cover selection/persistence logic. Custom palette editing and Activity recreation after selection are not part of the new UI test. |
+| Backup / Restore | Section is reachable. Category selection, import/export data, malformed files and permission restoration are not exercised by `SettingsFlowsTest`. SAF is tested only for picker action/cancel below. |
+| FAQ / About / version / Logcat | Miscellaneous section is reachable. Dialog content, copy/export, external links and version collapse are not exercised. |
+| Section expand/collapse | Headings are reached while scrolling; expand/collapse behavior itself is not tested. |
 
-| Flow | Entry/action/outcome | Test owner / limit |
-|---|---|---|
-| Crash report | Open with a stack trace; show known-issue or generic content; copy; open report link; cancel clear-history dialog; confirm clear QA history and bot logs | [`SupportFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/support/SupportFlowsTest.kt) (planned); report creation/submission is external and deliberately not performed |
-| OAuth callback | Deliver local callback URI; persist matching state/token; ignore missing or unrecognized state; return to MainActivity | `SupportFlowsTest.kt`; no real OAuth browser, account or credential is used |
-| Notification trampoline | Route `sms` blocked/unblocked, `call`, and unknown type to a stubbed destination; cancel app notifications and finish | `SupportFlowsTest.kt` with Espresso Intents; notification shade, OEM behavior and actual default handlers are not validated |
-| File chooser (SAF) | Export/create-document and import/open-document; assert MIME/action; selected URI and cancel result; remembered directory | `SupportFlowsTest.kt` / `SettingsFlowsTest.kt` with intercepted intents and canned URI; external document provider UI is not validated |
-| Android runtime permissions | Grant, deny, revoke and revisit permission-gated rules; verify unavailable permission does not show protection as active | `ProtectionFlowsTest.kt`, `SupportFlowsTest.kt`; automated grant/revoke is limited to permissions exposed by `UiAutomation` and target SDK |
-| Android special access | Usage access, overlay, notification listener, default dialer/SMS role, exact alarm | App state and request intent can be asserted in `ProtectionFlowsTest.kt`; settings panels and user-granted role/access are system-owned, and no device-wide setting is changed automatically |
-| Call/SMS hardware services | Call screening, answering/rejecting calls, carrier SMS/MMS, SIM identity and overlay-on-call | Not validated by emulator UI tests; use dedicated hardware/carrier testing before claiming these behaviors work on devices |
+## Support and platform flows
 
-## Existing baseline coverage
+| Flow | Current evidence or limit |
+|---|---|
+| Crash report | [`SupportFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/support/SupportFlowsTest.kt) launches the activity with a synthetic stack trace and checks the extra. Copy, report link and clear-history confirmation are not exercised; no report is submitted. |
+| OAuth callback | Support test sends a local matching callback, asserts the QA token was saved and intercepts return to MainActivity. No browser/account/credential exchange occurs. Unknown/missing states are not covered. |
+| Notification trampoline | Support test exercises only the `call` route with the call-log intent intercepted. SMS blocked/unblocked and unknown-type routes, notification cancellation and OEM behavior are not covered. |
+| File chooser (SAF) | Support test asserts Open Document and Create Document intents with canned cancel results. Selected URI/read/write/remembered-directory behavior and document-provider UI are not covered. |
+| Runtime permissions | No automated grant/deny/revoke flow yet. Permission-gated rule state must be tested with `UiAutomation` where supported. |
+| Special access | Usage access, overlay, notification listener, default dialer/SMS role and exact alarm panels are Android-owned and not validated here. |
+| Call/SMS hardware | Call screening, live answer/reject, carrier SMS/MMS, SIM identity and overlay-on-call require dedicated hardware/carrier testing. |
 
-- [`RuleTest.kt`](../../app/src/androidTest/java/spam/blocker/service/RuleTest.kt), [`DbSchemaTest.kt`](../../app/src/androidTest/java/spam/blocker/db/DbSchemaTest.kt), tokenizer/formula/schedule instrumentation cover service and database behavior; `RuleTest.database_prefix` is a known baseline failure tracked in the test run report.
-- [`PopupSizeTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/widgets/PopupSizeTest.kt), [`PopupSizeUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/widgets/PopupSizeUnitTest.kt), and [`SharedWidgetsAccessibilityTest.kt`](../../app/src/test/java/spam/blocker/ui/widgets/SharedWidgetsAccessibilityTest.kt) cover popup geometry and shared widget accessibility.
-- [`QaPackageIsolationTest.kt`](../../app/src/androidTest/java/spam/blocker/qa/QaPackageIsolationTest.kt) and [`QaTestEnvironment.kt`](../../app/src/androidTest/java/spam/blocker/qa/QaTestEnvironment.kt) constrain emulator setup/cleanup to `spam.blocker.qa`.
+## Existing baseline and isolation
+
+- [`QaPackageIsolationTest.kt`](../../app/src/androidTest/java/spam/blocker/qa/QaPackageIsolationTest.kt) asserts the instrumentation target is `spam.blocker.qa`; `QaTestEnvironment` reads/clears only that package's state.
+- Existing database, popup, accessibility, tokenizer, formula and schedule tests remain in the JVM/emulator suites. `RuleTest.database_prefix` is a reproducible baseline failure: case 7 expected `1`, got `24`; its expectation was not changed.
