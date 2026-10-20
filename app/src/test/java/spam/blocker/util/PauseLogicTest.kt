@@ -21,6 +21,7 @@ class PauseLogicTest {
         val pausedUntil = now - 1L // 1 ms in past
         assertFalse(PauseHelper.isPaused(pausedUntil, now))
         assertFalse(PauseHelper.isPaused(0L, now))
+        assertFalse(PauseHelper.isPaused(now, now))
     }
 
     @Test
@@ -37,5 +38,15 @@ class PauseLogicTest {
         val duration = 14 * 60 * 1000L + 30 * 1000L // 14m 30s
         val remainingMinutes = PauseHelper.remainingMinutes(now + duration, now)
         assertEquals(15, remainingMinutes) // rounded up
+    }
+
+    @Test
+    fun testRemainingMinutesRoundsUpAndExpiresAtBoundary() {
+        val now = 1000000L
+
+        assertEquals(0, PauseHelper.remainingMinutes(now, now))
+        assertEquals(1, PauseHelper.remainingMinutes(now + 1L, now))
+        assertEquals(1, PauseHelper.remainingMinutes(now + 60000L, now))
+        assertEquals(2, PauseHelper.remainingMinutes(now + 60001L, now))
     }
 }

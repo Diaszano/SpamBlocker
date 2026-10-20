@@ -37,8 +37,7 @@ class CSVParser(
     private fun skipBOM() {
         val firstChar = reader.read()
         if (firstChar.toChar() == '\uFEFF') { // it's bom
-            reader.read() // skip 2 more bytes
-            reader.read()
+            return
         } else { //
             reader.unread(firstChar)
         }
