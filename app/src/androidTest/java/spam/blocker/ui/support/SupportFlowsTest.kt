@@ -77,12 +77,12 @@ class SupportFlowsTest {
     fun notificationTrampolineRoutesCallsToInterceptedCallLog() {
         intending(hasData("content://call_log/calls"))
             .respondWith(Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null))
-        val intent = Intent(compose.activity, NotificationTrampolineActivity::class.java)
+        val intent = Intent(QaTestEnvironment.context(), NotificationTrampolineActivity::class.java)
             .putExtra("type", "call")
             .putExtra("blocked", true)
-        compose.activity.startActivity(intent)
-
-        intended(hasData("content://call_log/calls"))
+        ActivityScenario.launch<NotificationTrampolineActivity>(intent).use {
+            intended(hasData("content://call_log/calls"))
+        }
     }
 
     @Test

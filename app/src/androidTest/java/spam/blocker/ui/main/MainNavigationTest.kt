@@ -36,7 +36,7 @@ class MainNavigationTest {
     }
 
     @Test
-    fun allFourTabsCanBeSelectedAndHistoryReselectionIsIntercepted() {
+    fun allFourTabsCanBeSelectedAndHistoryReselectionKeepsSelection() {
         intending(anyIntent()).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
 
         val labels = listOf(R.string.call, R.string.sms, R.string.protection, R.string.tab_settings)
@@ -51,8 +51,14 @@ class MainNavigationTest {
         compose.onNode(tabWithLabel(calls))
             .performClick()
             .assertIsSelected()
+        compose.onNode(tabWithLabel(calls))
+            .performClick()
+            .assertIsSelected()
 
         val sms = compose.activity.getString(R.string.sms)
+        compose.onNode(tabWithLabel(sms))
+            .performClick()
+            .assertIsSelected()
         compose.onNode(tabWithLabel(sms))
             .performClick()
             .assertIsSelected()

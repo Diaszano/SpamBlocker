@@ -4,9 +4,16 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.longClick
 import android.app.Activity
 import android.app.Instrumentation
 import androidx.test.espresso.intent.Intents
@@ -41,11 +48,13 @@ class HistoryFlowsTest {
             showBlocked = true
             showTimeColor = false
         }
+        resetSearchState()
     }
 
     @After
     fun removeQaHistory() {
         QaTestEnvironment.clearHistory()
+        resetSearchState()
         Intents.release()
     }
 
@@ -106,7 +115,69 @@ class HistoryFlowsTest {
         compose.onNodeWithText(callNumber, useUnmergedTree = true).assertExists()
     }
 
+    @Test
+    fun historyContextMenuFiltersRecordsAndSearchCanBeCleared() {
+        navigateToCalls()
+        val first = "+15550000011"
+        val second = "+15550000012"
+        val now = System.currentTimeMillis()
+        QaTestEnvironment.addCall(HistoryRecord(peer = first, time = now, result = Def.RESULT_ALLOWED_BY_DEFAULT))
+        QaTestEnvironment.addCall(HistoryRecord(peer = second, time = now - 1, result = Def.RESULT_ALLOWED_BY_DEFAULT))
+        compose.runOnIdle {
+            HistoryOptions.showHistoryPassed.value = true
+            HistoryOptions.showHistoryBlocked.value = true
+            G.callVM.reload(QaTestEnvironment.context())
+        }
+
+        compose.onNodeWithText(first, useUnmergedTree = true).performTouchInput { longClick() }
+        compose.onNodeWithText(compose.activity.getString(R.string.filter)).performClick()
+        val search = compose.onNode(hasSetTextAction())
+        search.performTextInput("00011")
+        search.assertTextContains("00011")
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText(second, useUnmergedTree = true).fetchSemanticsNodes().isEmpty()
+        }
+        compose.onNodeWithText(first, useUnmergedTree = true).assertExists()
+
+        search.performTextClearance()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText(second, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        search.performTextInput("no-match")
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText(compose.activity.getString(R.string.history_no_matches)).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    @Test
+    fun callHistoryCanPauseAndResumeBlocking() {
+        navigateToCalls()
+        compose.runOnIdle {
+            spf.Global(QaTestEnvironment.context()).isGloballyEnabled = true
+            G.globallyEnabled.value = true
+            G.pausedUntil.value = 0L
+        }
+
+        compose.onNodeWithText(compose.activity.getString(R.string.pause_blocking)).performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.pause_15m)).performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.resume)).performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.pause_blocking)).assertExists()
+    }
+
     private fun filterButton(label: String) = compose.onNode(
         hasText(label) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button)
     )
+
+    private fun navigateToCalls() {
+        compose.onNodeWithText(compose.activity.getString(R.string.protection), useUnmergedTree = true).performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.call), useUnmergedTree = true).performClick()
+    }
+
+    private fun resetSearchState() = compose.runOnIdle {
+        listOf(G.callVM, G.smsVM).forEach { vm ->
+            vm.searchEnabled.value = false
+            vm.filter.value = ""
+            vm.records.clear()
+        }
+    }
 }
