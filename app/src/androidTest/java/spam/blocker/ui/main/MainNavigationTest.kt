@@ -11,7 +11,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.anyIntent
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
 import org.junit.Before
@@ -39,7 +41,7 @@ class MainNavigationTest {
     fun allFourTabsCanBeSelectedAndHistoryReselectionKeepsSelection() {
         intending(anyIntent()).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
 
-        val labels = listOf(R.string.call, R.string.sms, R.string.protection, R.string.tab_settings)
+        val labels = listOf(R.string.protection, R.string.tab_settings, R.string.call, R.string.sms)
         labels.forEach { id ->
             val label = compose.activity.getString(id)
             compose.onNode(tabWithLabel(label))
@@ -54,6 +56,7 @@ class MainNavigationTest {
         compose.onNode(tabWithLabel(calls))
             .performClick()
             .assertIsSelected()
+        intended(hasData("content://call_log/calls"))
 
         val sms = compose.activity.getString(R.string.sms)
         compose.onNode(tabWithLabel(sms))
