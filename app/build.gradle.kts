@@ -36,6 +36,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    testBuildType = "qa"
+
     flavorDimensions += "market"
     productFlavors {
         create("fdroid") {
@@ -66,6 +68,10 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             matchingFallbacks += listOf("release")
+        }
+        create("qa") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".qa"
         }
     }
     compileOptions {
@@ -134,5 +140,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.espresso.intents)
+    add("qaImplementation", libs.compose.ui.test.manifest)
     androidTestImplementation(libs.mockk)
 }
