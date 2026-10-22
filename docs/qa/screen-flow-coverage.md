@@ -1,82 +1,68 @@
-# Screen and flow coverage
+# Inventário de telas e fluxos
 
-This inventory records the current emulator/JVM evidence and the remaining limits. “Shown” means a Compose node was reached or asserted; it does not mean its action was exercised. The isolated instrumentation target is `spam.blocker.qa`.
+Este inventário distingue teste existente, execução instrumentada confirmada e lacuna. Um teste compilado não comprova comportamento em runtime. Os testes instrumentados devem usar `fdroidQa` (`spam.blocker.qa`) no Galaxy A53; não iniciar emulador. Nenhum teste deve originar chamada, SMS, OAuth real ou requisição externa.
 
-## Main destinations
+## Navegação e histórico
 
-| Destination | Action / state | Current evidence or limit |
+| Fluxo | Evidência no código | Ainda falta validar |
 |---|---|---|
-| Calls | Select Calls and move among all four tabs | [`MainNavigationTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/main/MainNavigationTest.kt): all four tabs select; reselecting Calls emits the call-log URI while selected state remains, with the external handler stubbed. SMS reselection keeps its selected state; the default SMS launcher route is not asserted because the package is device-dependent. |
-| Calls | Render allowed and blocked fixture records; toggle Allowed filter; search and clear; show no-match state | [`HistoryFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/history/HistoryFlowsTest.kt): allowed/blocked records render, Allowed hides only allowed records, context-menu Filter searches, clear restores records, and an unmatched query shows the empty result. Blocked toggle, retry and loading/error UI are not exercised in Compose. Empty/filter-state logic is covered by [`HistoryEmptyTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/history/HistoryEmptyTest.kt) and [`HistoryEmptyUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/history/HistoryEmptyUnitTest.kt). |
-| Calls | Pause for 15 minutes and resume blocking | `HistoryFlowsTest.kt` selects Pause Blocking → 15 minutes → Resume and checks the resumed action is available. Global master switch and expiration by elapsed time are not exercised in Compose. |
-| Calls | Open/expand record; test, copy, search online, add/edit regex, block prefix, spam DB, delete, report; history FAB | Not exercised by the current history emulator test. Search/browser, call-log, report API and call actions need controlled UI/service fixtures; no external handler or report endpoint is run. |
-| Calls | History FAB: logging, retention, row count, display toggles, SIM/time-color editor, delete all | Not exercised by the current emulator test. Real SIM/carrier/call-log data is device-owned. |
-| SMS | Select SMS and show allowed/blocked fixture records; toggle Allowed filter | `MainNavigationTest.kt` and `HistoryFlowsTest.kt`; fixtures are synthetic and stored only in `spam.blocker.qa`. Search/clear, Blocked toggle, retry, empty/error UI and mark-read badge changes are not exercised by Compose. |
-| SMS | Re-select SMS, open conversation, test/copy, search online, regex/prefix/database/delete, report, history FAB | Not exercised by the current emulator test. Real SMS app, carrier and report/API behavior are not invoked. |
-| Protection | Select screen and expose all quick/additional rule labels | [`ProtectionFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/setting/ProtectionFlowsTest.kt): traverses the visible rule labels. It does not toggle or configure them. State precedence is covered by [`ProtectionSummaryTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/ProtectionSummaryTest.kt); pause boundaries by [`PauseLogicTest.kt`](../../app/src/test/java/spam/blocker/util/PauseLogicTest.kt). |
-| Protection | Global/call/SMS toggles, pause/resume, permissions, rule dialogs, test FAB, priority conflicts | Not exercised by the current emulator test. [`RuleTest.kt`](../../app/src/androidTest/java/spam/blocker/service/RuleTest.kt) covers local screening logic, including the known `database_prefix` baseline failure; it does not simulate carrier or live-call behavior. |
+| Navegação principal | `MainNavigationTest.allFourTabsCanBeSelectedAndHistoryReselectionKeepsSelection` seleciona as quatro abas e toca novamente na aba atual. | Execução física depois das alterações atuais; rota do SMS padrão depende dos apps e da configuração do aparelho. |
+| Histórico de chamadas | `HistoryFlowsTest` cobre fixtures QA, busca e limpeza, filtro Allowed, pausa/retomada, menu de teste de regra, cópia, busca web interceptada, discador `tel:` interceptado, inclusão na base de spam, salvar regra de prefixo/regex, edição de regra existente, excluir uma linha, abrir configurações e confirmar exclusão total. Edição existente e ações locais passaram em AVD API 36; discador e classe completa aguardam execução. | Filtro de bloqueados e execução física no Galaxy A53. |
+| Histórico de SMS | `HistoryFlowsTest` cobre fixtures QA, busca/limpeza/no-match, filtro de bloqueados, intent `smsto:` interceptado, marcação como lida, inclusão na base de spam, diálogo de teste de regra, busca web, salvar regex, excluir apenas a linha escolhida e abrir o painel. Os três fluxos novos passaram em AVD API 36; nenhum SMS foi enviado. | Estados loading/erro/retry no Galaxy A53, busca por prefixo, confirmação do intent no Galaxy A53 e leitura confiável da área de transferência. |
+| Estados das listas | `HistoryEmptyTest` testa seleção de mensagem vazia, loading inicial e precedência. `HistoryFlowsTest` adiciona loading, erro, retry, vazio e conteúdo Compose para chamadas e SMS. | Execução física desses estados no Galaxy A53. |
+| Configurações do histórico | `HistoryFlowsTest` exercita abrir o painel, visibilidade de Allowed, confirmação de excluir tudo, Indicador, Localização, Operadora, Cor por horário, logging, conteúdo SMS e expiração. A alternância de expiração passou parcialmente no AVD; a execução perdeu o AVD antes de concluir a edição da quantidade inicial. | Persistência de Bloqueados, quantidade inicial e demais controles no Galaxy A53. Seleção SIM e CRUD/cancelamento de cores passaram focados no AVD; validação física ainda pendente. |
 
-## 14 quick rule controls
+## Proteção e regras
 
-`ProtectionFlowsTest.kt` scrolls to and asserts the displayed label for each row. Toggle, configuration, permission and service behavior remains untested in Compose unless stated below.
+`ProtectionFlowsTest` tem dez casos. A execução focada mais recente no Galaxy A53 passou 8/9 antes da adição do teste dos cinco estados; `blockTypeCanSwitchBetweenRejectAndSilence` não encontrou a segunda opção do menu. Um reteste isolado posterior foi interrompido pela desconexão do aparelho e não é evidência válida.
 
-| Rule | Interaction limit |
-|---|---|
-| Contacts | Contacts permission/data and strict/lenient settings not exercised. |
-| STIR | Unverified-caller toggle not exercised; emulator has no carrier attestation. |
-| SpamDB | Add/remove/expiry controls not exercised; local database logic is covered only by existing service tests. |
-| LocalAI | Training/filter/save dialog not exercised; no live SMS training input. |
-| RepeatedCall | Toggle and SMS-related option not exercised; no calls/messages generated. |
-| Dialed | Toggle and permission flow not exercised; call/SMS providers are not populated. |
-| Answered | Toggle and period configuration not exercised; no answered call generated. |
-| OffTime | Toggle/schedule editor not exercised; schedule utility tests remain in [`ScheduleTest.kt`](../../app/src/androidTest/java/spam/blocker/util/ScheduleTest.kt). |
-| EmergencySituation | Configuration not exercised; no emergency call placed. |
-| RecentApps | App selection/usage access not exercised; Android special-access UI is system-owned. |
-| MeetingMode | App selection/usage access not exercised; system usage/calendar data is not altered. |
-| BlockType | Handling mode and call permissions not exercised; no call answered or rejected. |
-| Notification | Channel, repeat, schedule, icon and delivery controls not exercised. |
-| CallerID | Template/overlay toggle not exercised; overlay over a live call is hardware-only. |
+| Área | Evidência no código | Ainda falta validar |
+|---|---|---|
+| Resumo e canais | `protectionSummaryRendersAllFiveStates`, `protectionSummaryShowsPermissionRequiredWhenEnabledChannelLacksPermission`, `globalProtectionSwitchPersistsOffAndOnInQaPackage`, `callAndSmsProtectionChannelsCanBeDisabledLocally` e `ProtectionSummaryTest`. OFF e ACTIVE usam tags semânticas de teste porque só exibem ícones; os outros estados são verificados pelo texto. | Executar os cinco estados na interface no Galaxy A53; permissões concedidas, negadas e revogadas em runtime. |
+| Pausa e horário | `protectionCanBePausedAndResumedLocally`, `offTimeTogglePersistsAndOpensTimeRangeEditor`, `PauseLogicTest`, `ScheduleTest` e `RuleTest.off_time`. | Edição de início/fim e validação do efeito de bloqueio no período pela UI. |
+| Regras rápidas | `protectionScreenExposesAllQuickAndAdditionalRuleAreas` verifica acesso às áreas e `RuleTest` cobre parte da decisão de regra para contatos, chamadas repetidas, discagem, apps recentes, agenda, operadora e localização. | Controles e configurações das 14 regras rápidas, incluindo reset, cancelar e salvar. Faltam fluxos de LocalAI, exceções, notificações, CallerID e permissões. |
+| Tipo de bloqueio | `blockTypeCanSwitchBetweenRejectAndSilence` tenta alterar Reject/Silence e verificar persistência local; permanece falhando em runtime. `RuleTest` cobre parte da decisão. | Corrigir e aprovar a alternância na UI. Hang Up e permissões de chamada não devem iniciar chamada real. |
+| Seções | `protectionRuleSectionsCanBeCollapsedAndExpanded` verifica recolher e expandir seções; passou na execução focada 8/9. | Repetir na suíte física completa. |
+| Teste de regra | `ruleTestingFabOpensDialogWithoutRunningTests` abre e fecha o diálogo sem disparar a triagem. | Conflitos de prioridade: abrir, resolver e cancelar na UI. |
+| Regex numérica | `RegexEditorFlowsTest.invalidNumberRegexCannotBeSavedOrPersisted` e `validNumberRegexCanBeSavedToQaDatabase`; há também importação CSV com cabeçalho presente/ausente. Testes JVM cobrem estado, presets e parser. | Busca, aplicação de preset pela UI, exclusão e edição iniciada pelo histórico; execução física após alterações atuais. |
+| Regex de conteúdo | `contentRegexCanBeCreatedEditedAndDeletedThroughUi` cria e edita regra local. O swipe de exclusão não removeu o item nas execuções focadas anteriores. | Consertar e provar exclusão; busca, presets e ações de QuickCopy continuam sem cobertura de UI. |
+| QuickCopy, PushAlert, SmsAlert e SmsBomb | `RegexEditorFlowsTest.quickCopyRegexCanBeCreatedEditedAndDeletedThroughUi` cria/edita/exclui uma regex QuickCopy e verifica flags de número, conteúdo, permitido e cópia automática. `SettingsFlowsTest.smsAlertAndSmsBombSwitchesPersistInQaPreferences` alterna os switches, verifica regex inválida não persistir, regex válida e duração para SmsAlert/SmsBomb, e alterna a proteção de lockscreen de SmsBomb; permissões são simuladas e restauradas. `SettingsFlowsTest.pushAlertCanBeCreatedEditedAndDeletedWithQaAppSelection` faz CRUD e seleciona o próprio pacote QA. `PushAlertRecordTest` cobre validação local. | Executar fisicamente esses fluxos. Não enviar SMS nem depender de notificação de operadora. |
+| Base de spam | Histórico e `RuleTest.database_prefix` exercitam inclusão e decisão local. | Remoção e expiração pela UI. |
+| Acesso especial / telefonia | Testes não originam chamadas ou mensagens. | Handoff de Usage Access, overlay, listener, papel padrão e alarmes; comportamento de SIM/operadora e overlay em chamada exige ambiente compatível. Painéis e rede da operadora são limitações externas, não resultados aprovados. |
 
-## Six additional rule areas
+## Configurações e integrações
 
-`ProtectionFlowsTest.kt` asserts that all six section labels are reachable. Editors, lists and save/delete actions are not currently exercised by emulator tests.
+| Fluxo | Evidência no código | Ainda falta validar |
+|---|---|---|
+| Seções e aparência | `SettingsFlowsTest.settingsSectionsAreReachableAndThemeChoiceCanBeChanged`, `SettingsFlowsTest.allThemeFamiliesAndAppearanceModesApplyAndPersistTheirPalette`, `SettingsFlowsTest.customThemeColorCanBeEditedAndPersistsAfterActivityRecreation`, `settingsSectionsPersistCollapseAndExpandActions` e testes JVM de presets/seleção. | Executar os fluxos no Galaxy A53 e validar reinício real do processo. |
+| Idioma | `languagePickerShowsSystemAndSupportedLocalesWithoutApplyingOne` abre o seletor e verifica Sistema e um idioma disponível. | Selecionar idioma e confirmar atualização/persistência da Activity no aparelho. |
+| APIs de consulta e denúncia | `ApiCreationFlowTest` e `ReportApiCreationFlowTest` cobrem CRUD/Undo local e cancelar sem gravar; `ReportApiRulesTest` cobre lógica local. | Presets, validações completas, configuração OAuth e confirmação de ausência de chamadas de rede em cada ação. |
+| Bots e automação | `SettingsFlowsTest` cobre lista/abertura de templates, salvar bot manual, excluir/restaurar por snackbar e exige pasta configurada antes de salvar Auto Backup. Testes JVM cobrem templates e sequência de ações. | Aplicar templates, editar/excluir os demais tipos, validar agenda/ações e consultar logs. Retestar os fluxos recentes no aparelho. |
+| CSV | Testes JVM cobrem parser, escaping, campos finais, cabeçalho e ação do bot. `RegexEditorFlowsTest` e `SettingsFlowsTest` cobrem picker via provider QA para cabeçalho presente/ausente; a ausência de `pattern` mantém uma regra QA preexistente, e a importação válida verifica que `12345` é acrescentado sem remover a regra anterior. | Executar as asserções atuais no Galaxy A53 e cobrir as famílias restantes. A execução física anterior confirmou inserção, mas não verificou o valor nem preservação/append de regras preexistentes. |
+| Backup e restauração | `SettingsFlowsTest` cobre diálogo de categorias, exportação para URI QA, importação malformada com sentinelas QA em Bot e NumberRegex preservadas, e `validBackupImportRestoresSelectedRegexRulesFromQaDocumentUri` para restore válido. `ConfigSerializationTest.regexBackupArchiveRoundTripsSelectedCategoryAndRules` valida o gzip e a regra pela suíte JVM; restore UI compila, runtime pendente. | Preservar e afirmar todas as categorias em cada falha de importação; executar no Galaxy A53. |
+| FAQ, Sobre e versão | `SettingsFlowsTest.faqAndAboutDialogsCanBeOpenedAndDismissed`. | Todos os links externos com destino interceptado, cópia, versão e ações restantes. |
+| Logcat | Seção pode ser alcançada por Settings. | Exportar/copiar e validar conteúdo sem depender de logs pessoais. |
 
-| Area | Remaining coverage limit |
-|---|---|
-| Number Regex | Search, preset, add/edit/delete and invalid/valid save flow need UI tests. [`RegexStateUnitTest.kt`](../../app/src/test/java/spam/blocker/ui/setting/regex/RegexStateUnitTest.kt) covers model round-trip only. |
-| Content Regex | Search/editor/save/delete UI and real message integration are not exercised. |
-| QuickCopy Regex | Search/editor/save/delete UI and cross-app clipboard monitoring are not exercised. |
-| PushAlert | Rule list/editor and delivered notifications are not exercised. |
-| SmsAlert | Rule configuration and SMS delivery are not exercised. |
-| SmsBomb | Rule configuration and a live message stream are not exercised. |
+## Suporte e fluxos do Android
 
-## Settings
+| Fluxo | Evidência no código | Ainda falta validar |
+|---|---|---|
+| Relatório de crash | `SupportFlowsTest.crashReportActivityAcceptsLocalStackTrace` verifica stack trace sintético local. `CrashReportFlowsTest` verifica cópia do stack trace, cancelar/confirmar limpeza de chamadas e SMS QA e intercepta o destino do link de report; compila, aguarda execução física. | Reproduzir os casos em runtime no Galaxy A53. |
+| OAuth | `SupportFlowsTest` cobre callback válido, ausente, desconhecido e malformado com token local, sem navegador nem credenciais reais. | Nenhum login externo será executado; confirmar isolamento em execução física completa. |
+| Notification trampoline | `SupportFlowsTest` intercepta rota de chamadas, SMS desbloqueado e tipo desconhecido. | SMS bloqueado, cancelamento de notificação e comportamento do app padrão são dependentes do Android/OEM. |
+| SAF / seletor de arquivos | `SupportFlowsTest.documentPickerReadAndWriteIntentsReturnControlledCancellation` verifica cancelamento de abrir/criar documento. `documentPickerReturnsSelectedQaUrisAndStoresDirectoryTags` verifica leitura/gravação por provider QA e tags de URI; `safDirectoryGrantPersistsAndCanBeRevoked` cobre negação, persistência read/write e revogação. Compilação passou; runtime pendente. | Executar no Galaxy A53 ou AVD QA isolado e confirmar persistência e limpeza do grant. |
+| Permissões de runtime | Um teste verifica estado de permissão necessária; não há matriz completa de conceder/negar/revogar. | Exercitar cenários suportados por `UiAutomation`; testar fallback de acesso especial sem afirmar cobertura de telas Android/OEM. |
 
-| Section / action | Current evidence or limit |
-|---|---|
-| Instant Query | [`SettingsFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/setting/SettingsFlowsTest.kt) reaches the section heading. Presets, API CRUD/validation and network behavior are not exercised. |
-| Report Number | Section heading is reachable. Presets, auto-report configuration and API requests are not exercised. |
-| OAuth setup | No settings editor/browser exchange test. Matching callback token persistence is tested below with a local intent only. |
-| Automation | Section heading is reachable. Bot CRUD, templates, schedules, action validation/logs are not exercised in Compose; [`BotTemplatesTest.kt`](../../app/src/test/java/spam/blocker/service/bot/BotTemplatesTest.kt) covers template logic. |
-| Language | Miscellaneous section is reachable; changing app/system language is not tested. |
-| Theme | Settings test selects Catppuccin and Dark and checks persisted preference values; [`ThemeSelectionTest.kt`](../../app/src/test/java/spam/blocker/ui/theme/ThemeSelectionTest.kt), [`ThemePresetsTest.kt`](../../app/src/test/java/spam/blocker/ui/theme/ThemePresetsTest.kt) and [`ThemePersistenceTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/theme/ThemePersistenceTest.kt) cover selection/persistence logic. Custom palette editing and Activity recreation after selection are not part of the new UI test. |
-| Backup / Restore | Section is reachable. Category selection, import/export data, malformed files and permission restoration are not exercised by `SettingsFlowsTest`. SAF is tested only for picker action/cancel below. |
-| FAQ / About / version / Logcat | Miscellaneous section is reachable. Dialog content, copy/export, external links and version collapse are not exercised. |
-| Section expand/collapse | Headings are reached while scrolling; expand/collapse behavior itself is not tested. |
+## Isolamento e execução
 
-## Support and platform flows
+- `QaPackageIsolationTest.instrumentationTargetsOnlyTheQaApplication` afirma `spam.blocker.qa`; `QaTestEnvironment` usa o contexto alvo e fixtures QA.
+- O inventário atual contém 120 métodos instrumentados em 20 arquivos Kotlin de teste e 63 testes JVM. A última suíte JVM completa passou: 63 passaram, 0 falharam e 0 foram ignorados.
+- `ProtectionFlowsTest` teve resultado físico 8/9 na execução focada mais recente; o caso Reject/Silence continua pendente. O Galaxy A53 desconectou no reteste seguinte. A suíte instrumentada completa de 120 casos não foi executada após as alterações recentes.
+- O estado do pacote `spam.blocker.qa` após a desconexão não pôde ser confirmado. A última verificação antes dela encontrou o pacote de produção `spam.blocker` instalado.
+- Consulte [`test-run-report.md`](test-run-report.md) para resultados históricos, comandos e limitações. Build ou compilação não contam como teste de runtime.
 
-| Flow | Current evidence or limit |
-|---|---|
-| Crash report | [`SupportFlowsTest.kt`](../../app/src/androidTest/java/spam/blocker/ui/support/SupportFlowsTest.kt) launches the activity with a synthetic stack trace and checks the extra. Copy, report link and clear-history confirmation are not exercised; no report is submitted. |
-| OAuth callback | Support test sends a local matching callback, asserts the QA token was saved and intercepts return to MainActivity. The QA manifest removes the external `spamblocker://auth` filter to avoid competing with production when both packages are installed; explicit local activity launch remains covered. No browser/account/credential exchange occurs. Unknown/missing states are not covered. |
-| Notification trampoline | Support test exercises only the `call` route with the call-log intent intercepted. SMS blocked/unblocked and unknown-type routes, notification cancellation and OEM behavior are not covered. |
-| File chooser (SAF) | Support test asserts Open Document and Create Document intents with canned cancel results. Selected URI/read/write/remembered-directory behavior and document-provider UI are not covered. |
-| Runtime permissions | No automated grant/deny/revoke flow yet. Permission-gated rule state must be tested with `UiAutomation` where supported. |
-| Special access | Usage access, overlay, notification listener, default dialer/SMS role and exact alarm panels are Android-owned and not validated here. |
-| Call/SMS hardware | Call screening, live answer/reject, carrier SMS/MMS, SIM identity and overlay-on-call require dedicated hardware/carrier testing. |
+## Atualização de validação — 21/10/2026
 
-## Existing baseline and isolation
+`HistoryFlowsTest` agora inclui edição da regex existente, interceptação do discador, persistência de visibilidade Allowed/Blocked, seleção automática/sempre de SIM, edição/cancelamento/exclusão de cores, edição de TTL/quantidade de linhas, e fluxos de SMS de busca online, salvar regex, exclusão e abertura das configurações. Os casos recentes de TTL, SIM, cores e busca SMS passaram individualmente no AVD. A classe completa ainda não passou na versão atual porque o AVD desconectou durante uma repetição; a execução física no Galaxy A53 continua pendente.
 
-- [`QaPackageIsolationTest.kt`](../../app/src/androidTest/java/spam/blocker/qa/QaPackageIsolationTest.kt) asserts the instrumentation target is `spam.blocker.qa`; `QaTestEnvironment` reads/clears only that package's state.
-- Existing database, popup, accessibility, tokenizer, formula and schedule tests remain in the JVM/emulator suites. `RuleTest.database_prefix` is a reproducible baseline failure: case 7 expected `1`, got `24`; its expectation was not changed.
+`ProtectionFlowsTest.protectionSummaryRendersAllFiveStates` cobre OFF, PAUSED, PERMISSION_REQUIRED, CHANNELS_OFF e ACTIVE em código e compila. Ainda falta executar os estados e as permissões no Galaxy A53.
