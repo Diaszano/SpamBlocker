@@ -9,6 +9,7 @@ import spam.blocker.ui.widgets.IMenuItem
 import spam.blocker.ui.widgets.InitFile
 import spam.blocker.ui.widgets.LabelItem
 import spam.blocker.ui.widgets.MIME_CSV
+import spam.blocker.util.Csv
 import spam.blocker.util.CSVParser
 import spam.blocker.util.FileUtils.getFilename
 import spam.blocker.util.FileUtils.readDataFromUri
@@ -19,6 +20,11 @@ import java.io.InputStreamReader
 import java.io.PushbackReader
 
 const val Csv_Import_Last_Dir_Tag = "csv_import_last_dir_tag"
+
+fun Csv.toRegexRulesOrNull(): List<RegexRule>? {
+    if (!headers.contains("pattern")) return null
+    return rows.map { RegexRule.fromMap(headers.zip(it).toMap()) }
+}
 
 fun importCsvItems(
     ctx: Context,
@@ -49,13 +55,10 @@ fun importCsvItems(
                                 ).parse()
 
                                 // show error if there is no column `pattern`, because it will generate empty rows.
-                                if (!csv.headers.contains("pattern")) {
+                                val allRules = csv.toRegexRulesOrNull()
+                                if (allRules == null) {
                                     warningTrigger.value = true
                                     return@popupRead
-                                }
-
-                                val allRules = csv.rows.map { row ->
-                                    RegexRule.fromMap(csv.headers.zip(row).toMap())
                                 }
 
                                 when (menuItemIndex) {

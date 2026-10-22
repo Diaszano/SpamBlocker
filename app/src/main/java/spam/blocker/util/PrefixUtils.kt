@@ -22,6 +22,9 @@ object PrefixUtils {
             trimmed
         }
 
-        return "$prefix.*"
+        val escapedPrefix = prefix.map {
+            if (it in "\\.^$|?*+()[]{}") "\\$it" else it.toString()
+        }.joinToString("")
+        return "$escapedPrefix.*"
     }
 }

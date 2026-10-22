@@ -93,7 +93,15 @@ class CSVParser(
                 }
 
                 CSVState.ReadingQuotedField -> when (c.toChar()) {
-                    '"' -> currentState = CSVState.ReadingField
+                    '"' -> {
+                        val next = reader.read()
+                        if (next == '"'.code) {
+                            currentField.append('"')
+                        } else {
+                            currentState = CSVState.ReadingField
+                            if (next != -1) reader.unread(next)
+                        }
+                    }
                     else -> currentField.append(c.toChar())
                 }
 
@@ -115,7 +123,7 @@ class CSVParser(
         }
 
         // Handle the last record if it's not empty
-        if (currentField.isNotEmpty()) {
+        if (currentField.isNotEmpty() || currentRecord.isNotEmpty()) {
             currentRecord.add(currentField.toString())
         }
         if (currentRecord.isNotEmpty()) {
