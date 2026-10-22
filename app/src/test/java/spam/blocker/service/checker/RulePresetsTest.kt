@@ -1,7 +1,10 @@
 package spam.blocker.service.checker
 
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import spam.blocker.def.Def
 
 class RulePresetsTest {
     @Test
@@ -20,5 +23,28 @@ class RulePresetsTest {
         assertTrue(pattern.containsMatchIn("Seu pacote: http://192.168.1.1/track"))
         assertTrue(pattern.containsMatchIn("Clique aqui: tinyurl.com/xyz"))
         assertTrue(pattern.containsMatchIn("Acesse cutt.ly/promo"))
+    }
+
+    @Test
+    fun satellitePremiumPatternMatchesSupportedPrefixesOnly() {
+        val pattern = RulePresets.PAT_SATELLITE_PREMIUM.toRegex()
+
+        listOf("+881123", "+882123", "+883123", "+870123").forEach {
+            assertTrue(pattern.containsMatchIn(it), it)
+        }
+        assertFalse(pattern.containsMatchIn("+880123"))
+        assertFalse(pattern.containsMatchIn("881123"))
+    }
+
+    @Test
+    fun presetFamiliesKeepTheirExpectedRuleTypesAndFlags() {
+        val numberPresets = RulePresets.getNumberPresets()
+        val contentPresets = RulePresets.getContentPresets()
+
+        assertEquals(2, numberPresets.size)
+        assertTrue(numberPresets.all { it.isBlacklist && it.flags == Def.FLAG_REGEX_RAW_NUMBER })
+        assertEquals(1, contentPresets.size)
+        assertTrue(contentPresets.single().isBlacklist)
+        assertEquals(Def.DefaultRegexFlags, contentPresets.single().flags)
     }
 }

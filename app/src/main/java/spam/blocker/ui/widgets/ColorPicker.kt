@@ -146,6 +146,7 @@ fun ColorButton(
 fun MultiColorButton(
     colors: List<Int>,
     emptyColor: Color,
+    modifier: Modifier = Modifier,
     onClick: Lambda
 ) {
     val W = 60
@@ -162,6 +163,7 @@ fun MultiColorButton(
 
     StrokeButton(
         color = Color.Unspecified,
+        modifier = modifier,
         icon = {
             Box(
                 modifier = Modifier

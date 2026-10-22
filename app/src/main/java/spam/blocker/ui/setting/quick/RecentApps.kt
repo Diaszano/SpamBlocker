@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -183,7 +185,10 @@ fun <T> PopupChooseApps(
 
 
                             // checkbox
-                            SwitchBox(checked = isEnabled) { isChecked ->
+                            SwitchBox(
+                                checked = isEnabled,
+                                modifier = Modifier.testTag("choose_app_$pkgName"),
+                            ) { isChecked ->
                                 onCheckChange(pkgName, isChecked)
                             }
                         }

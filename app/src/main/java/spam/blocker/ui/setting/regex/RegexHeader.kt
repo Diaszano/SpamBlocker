@@ -9,7 +9,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import spam.blocker.Events
 import spam.blocker.G
 import spam.blocker.R
@@ -167,6 +169,7 @@ fun RegexHeader(
             MenuButton(
                 label = Str(R.string.new_),
                 color = C.infoBlue,
+                modifier = if (forType == Def.ForNumber) Modifier.testTag("number_regex_add") else Modifier,
                 items = shortClickItems,
                 longTapItems = longClickItems,
             )
@@ -174,6 +177,7 @@ fun RegexHeader(
             MenuButton(
                 label = Str(R.string.new_),
                 color = C.infoBlue,
+                modifier = Modifier.testTag("quick_copy_regex_add"),
                 items = shortClickItems,
             )
         }

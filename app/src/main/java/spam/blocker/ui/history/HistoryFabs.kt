@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.def.Def
@@ -187,6 +188,7 @@ fun EditTimeColorsDialog(
             StrokeButton(
                 label = "+",
                 color = G.palette.textGrey,
+                modifier = Modifier.testTag("history_time_colors_add"),
             ) {
                 editing = FreshnessColor()
                 editingIndex = null
@@ -423,7 +425,8 @@ fun HistoryFabs(
                             if (showHistoryTimeColor.value) {
                                 MultiColorButton(
                                     colors = historyTimeColors.map { it.argb },
-                                    emptyColor = if (historyTimeColors.isNotEmpty()) Color.Unspecified else C.textGrey
+                                    emptyColor = if (historyTimeColors.isNotEmpty()) Color.Unspecified else C.textGrey,
+                                    modifier = Modifier.testTag("history_time_color_edit"),
                                 ) {
                                     timeColorTrigger.value = true
                                 }

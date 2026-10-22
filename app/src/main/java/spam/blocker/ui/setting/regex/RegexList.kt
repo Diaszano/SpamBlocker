@@ -31,6 +31,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
@@ -460,7 +461,7 @@ fun RegexItem(
                             clickedRuleState.value = ruleList[ruleIndex]
                             contextMenuExpanded.value = true
                         }
-                    )
+                    ).testTag("regex_item_${rule.id}")
             )
         }
     }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -265,6 +266,7 @@ fun PushAlertHeader() {
         StrokeButton(
             label = Str(R.string.new_),
             color = C.infoBlue,
+            modifier = Modifier.testTag("push_alert_add"),
             onClick = {
                 addTrigger.value = true
             }
@@ -396,7 +398,7 @@ fun PushAlertList() {
                         modifier = M.clickable {
                             clickedIndex = index
                             editTrigger.value = true
-                        }
+                        }.testTag("push_alert_item_${rec.id}"),
                     )
                 }
             }

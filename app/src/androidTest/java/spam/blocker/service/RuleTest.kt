@@ -5,8 +5,9 @@ import androidx.test.core.app.ApplicationProvider
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import junit.framework.TestCase.assertEquals
-import org.junit.After
+import org.junit.AfterClass
 import org.junit.Before
 import org.junit.Test
 import spam.blocker.db.ContentRegexTable
@@ -40,16 +41,12 @@ class RuleTest {
     // This is executed before every test case runs
     @Before
     fun setup() {
-        clearAllMocks()
+    clearAllMocks()
 
         spf.SharedPref(ctx).clear()
         NumberRegexTable().clearAll(ctx)
         ContentRegexTable().clearAll(ctx)
         SpamTable.clearAll(ctx)
-    }
-
-    @After
-    fun teardown() {
     }
 
     fun build_rule(
@@ -724,6 +721,7 @@ class RuleTest {
             add(ctx, rawNumber = "1234567800")
             add(ctx, rawNumber = "1234567801")
         }
+        NumberRegexTable().clearAll(ctx)
         add_number_rule(
             build_rule("[min=3].*..", "", 100, isBlacklist = true, Def.FLAG_FOR_CALL, patternModeType = ModeType.DatabasePrefix)
         )
@@ -737,5 +735,13 @@ class RuleTest {
         r = Checker.checkCall(ctx, rawNumber = "1234567802").first
         assertEquals("8. should block because count(3) >= min(3)", Def.RESULT_BLOCKED_BY_DATABASE_PREFIX_REGEX, r.byType)
         assertEquals("1234567800, 1234567801, 1234567803", (r as ByRegexRule).details)
+    }
+
+    companion object {
+        @AfterClass
+        @JvmStatic
+        fun teardownMocks() {
+            unmockkAll()
+        }
     }
 }

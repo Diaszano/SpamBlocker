@@ -1,6 +1,7 @@
 package spam.blocker.ui.setting.quick
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
@@ -9,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import spam.blocker.G
 import spam.blocker.R
 import spam.blocker.def.Def
@@ -132,6 +134,7 @@ fun BlockType() {
                 ComboBox(
                     options,
                     selected.intValue,
+                    modifier = Modifier.testTag("block_type_selector"),
                 )
             }
         }
