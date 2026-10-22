@@ -37,6 +37,7 @@ import spam.blocker.ui.history.tagCategory
 import spam.blocker.ui.history.tagComment
 import spam.blocker.ui.setting.LabeledRow
 import spam.blocker.ui.setting.misc.ChooseBackupCategoriesDialog
+import spam.blocker.ui.setting.regex.toRegexRulesOrNull
 import spam.blocker.ui.widgets.AnimatedVisibleV
 import spam.blocker.ui.widgets.ComboBox
 import spam.blocker.ui.widgets.DirButton
@@ -655,6 +656,8 @@ abstract class FileAction : IPermissiveAction {
     // Helper to get the resolved URI
     protected fun getTreeUri() = uriStr?.toUri()
 
+    fun hasFolderAccess(ctx: Context) = getTreeUri()?.hasFolderAccess(ctx) == true
+
     @Composable
     override fun Summary(showIcon: Boolean) {
         val ctx = LocalContext.current
@@ -784,8 +787,9 @@ class ParseCSV(
             ).parse()
 
             // 2. Check if the headers contains required column `pattern`
-            val colPattern = "pattern"
-            if (!csv.headers.contains(colPattern)) {
+            val rules = csv.toRegexRulesOrNull()
+            if (rules == null) {
+                val colPattern = "pattern"
                 aCtx.logger?.error(
                     ctx.getString(R.string.csv_missing_column).formatAnnotated(
                         colPattern.A(C.teal200), colPattern.A(C.teal200), colPattern.A(C.teal200)
@@ -795,9 +799,6 @@ class ParseCSV(
             }
 
             // 3. Map `Csv.rows` to `RegexRule`s
-            val rules = csv.rows.map { row ->
-                RegexRule.fromMap(csv.headers.zip(row).toMap())
-            }
             aCtx.logger?.debug(ctx.getString(R.string.parsed_n_rules).format("${rules.size}"))
 
             aCtx.lastOutput = rules

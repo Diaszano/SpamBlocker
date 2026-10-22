@@ -22,6 +22,7 @@ import spam.blocker.db.Bot
 import spam.blocker.db.reScheduleBot
 import spam.blocker.service.bot.ITriggerAction
 import spam.blocker.service.bot.allChainable
+import spam.blocker.service.bot.FileAction
 import spam.blocker.service.bot.botTriggers
 import spam.blocker.service.bot.clone
 import spam.blocker.service.bot.rememberSaveableActionList
@@ -64,7 +65,8 @@ fun EditBotDialog(
 
 
     // if any error, disable the Save button
-    val anyError = !actions.allChainable()
+    val anyError = !actions.allChainable() ||
+        actions.filterIsInstance<FileAction>().any { !it.hasFolderAccess(ctx) }
 
     PopupDialog(
         trigger = popupTrigger,

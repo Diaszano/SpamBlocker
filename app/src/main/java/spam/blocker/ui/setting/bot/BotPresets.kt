@@ -58,6 +58,7 @@ class BotPreset(
     // Either of these must exist
     val setupDialog: ApiSetupDialog? = null,
     val doAdd: Lambda1<Context>? = null,
+    val createBot: ((Context) -> Bot)? = null,
 )
 
 
@@ -112,8 +113,8 @@ val BotPresets = listOf(
                     "<a href=\"https://www.ftc.gov/policy-notices/open-government/data-sets/do-not-call-data\">FTC - Do Not Call</a>"
                 )
         },
-        doAdd = { ctx ->
-            val newBot = Bot(
+        createBot = { ctx ->
+            Bot(
                 desc = ctx.getString(R.string.bot_preset_dnc),
                 trigger = Schedule(schedule = Daily(Time(hour = 18))),
                 actions = listOf(
@@ -126,7 +127,6 @@ val BotPresets = listOf(
                     SaveBotTag(tagName = "csv_name"),
                 )
             )
-            addBotToDB(ctx, newBot)
         }
     ),
 
@@ -322,8 +322,8 @@ val BotPresets = listOf(
     BotPreset(
         descId = R.string.bot_preset_auto_backup,
         tooltip = { it.getString(R.string.help_bot_preset_auto_backup) },
-        doAdd = { ctx ->
-            val newBot = Bot(
+        createBot = { ctx ->
+            Bot(
                 desc = ctx.getString(R.string.bot_preset_auto_backup),
                 trigger = Schedule(
                     enabled = true,
@@ -337,7 +337,6 @@ val BotPresets = listOf(
                     WriteFile(filename = "SpamBlocker.auto.gz")
                 )
             )
-            addBotToDB(ctx, newBot)
         }
     )
 )

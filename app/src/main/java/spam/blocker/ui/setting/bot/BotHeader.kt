@@ -15,6 +15,7 @@ import spam.blocker.R
 import spam.blocker.db.Bot
 import spam.blocker.db.BotTable
 import spam.blocker.db.reScheduleBot
+import spam.blocker.service.bot.FileAction
 import spam.blocker.service.bot.InterceptCall
 import spam.blocker.service.bot.InterceptSms
 import spam.blocker.service.bot.Schedule
@@ -46,6 +47,9 @@ fun addBotToDB(ctx: Context, newBot: Bot) {
     // 4. re-schedule it
     reScheduleBot(ctx, newBot)
 }
+
+private fun needsFileSetup(ctx: Context, bot: Bot) =
+    bot.actions.filterIsInstance<FileAction>().any { !it.hasFolderAccess(ctx) }
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
@@ -118,12 +122,15 @@ fun BotHeader(
     val templateTrigger = remember { mutableStateOf(false) }
     BotTemplateDialog(trigger = templateTrigger) { template ->
         val newBot = template.factory()
-        val requiredPermissions = newBot.triggerAndActions().map {
-            it.requiredPermissions(ctx)
-        }.flatten()
-        G.permissionChain.ask(ctx, requiredPermissions) { isGranted ->
-            if (isGranted) {
-                addBotToDB(ctx, newBot)
+        if (needsFileSetup(ctx, newBot)) {
+            initialBotToEdit.value = newBot
+            customizeTrigger.value = true
+        } else {
+            val requiredPermissions = newBot.triggerAndActions().flatMap { it.requiredPermissions(ctx) }
+            G.permissionChain.ask(ctx, requiredPermissions) { isGranted ->
+                if (isGranted) {
+                    addBotToDB(ctx, newBot)
+                }
             }
         }
     }
@@ -158,16 +165,21 @@ fun BotHeader(
                 tooltip = preset.tooltip(ctx)
             ) {
                 tappedPreset = preset
-
-                G.permissionChain.ask(ctx, preset.requiredPermissions) { isGranted ->
-                    if (isGranted) {
-                        // If the preset requires authentication, such as PhoneBlock OAuth,
-                        //  show an OAuth dialog.
-                        // Otherwise, just create the bot.
-                        if(preset.setupDialog == null) {
-                            preset.doAdd!!(ctx)
-                        } else {
-                            setupTrigger.value = true
+                val botToEdit = preset.createBot?.invoke(ctx)
+                if (botToEdit != null) {
+                    initialBotToEdit.value = botToEdit
+                    customizeTrigger.value = true
+                } else {
+                    G.permissionChain.ask(ctx, preset.requiredPermissions) { isGranted ->
+                        if (isGranted) {
+                            // If the preset requires authentication, such as PhoneBlock OAuth,
+                            // show an OAuth dialog.
+                            // Otherwise, just create the bot.
+                            if (preset.setupDialog == null) {
+                                preset.doAdd!!(ctx)
+                            } else {
+                                setupTrigger.value = true
+                            }
                         }
                     }
                 }

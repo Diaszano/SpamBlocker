@@ -55,7 +55,8 @@ object BotTemplates {
                             enabled = true
                         },
                         actions = listOf(
-                            BackupExport()
+                            BackupExport(),
+                            WriteFile(filename = "SpamBlocker.auto.gz"),
                         )
                     )
                 }
