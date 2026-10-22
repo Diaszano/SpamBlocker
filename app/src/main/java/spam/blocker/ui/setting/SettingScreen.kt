@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
@@ -212,7 +213,10 @@ fun SettingLabel(
     Text(
         text = stringResource(id = labelId),
         modifier = modifier,
-        fontSize = 16.sp,
+        fontSize = 15.sp,
+        lineHeight = 18.sp,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
         fontWeight = FontWeight.Medium,
         color = color ?: MaterialTheme.colorScheme.onSurface,
     )

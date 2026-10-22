@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
                 },
                 TabItem(
                     route = Def.SETTING_TAB_ROUTE,
-                    label = ctx.resources.getString(R.string.setting),
+                    label = ctx.resources.getString(R.string.tab_settings),
                     icon = R.drawable.ic_settings,
                     isSelected = mutableStateOf(lastTab == Def.SETTING_TAB_ROUTE),
                     badgeText = { null },

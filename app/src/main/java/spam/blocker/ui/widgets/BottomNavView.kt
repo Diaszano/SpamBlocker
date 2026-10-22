@@ -29,6 +29,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
 import spam.blocker.ui.M
@@ -159,6 +161,10 @@ fun BottomBar(vm: BottomBarViewModel) {
                         Text(
                             text = tab.label,
                             fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
                             color = if (tab.isSelected.value) C.infoBlue else C.textGrey
                         )
                     }

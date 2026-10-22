@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="section_collapsed">Recolhido</string>
+    <string name="tab_settings">Ajustes</string>
     <string name="section_expanded">Expandido</string>
     <string name="expand">Expandir</string>
     <string name="collapse">Recolher</string>
