@@ -222,6 +222,16 @@ FileChooser.popupWrite(InitFile(writeName, arrayOf("text/plain"), writeTag)) { u
 selectedWrite.set(uri)
 uri?.let { context.contentResolver.openOutputStream(it, "wt")?.use { output -> output.write(text) } }
 }
+}
+compose.waitUntil(5_000) { selectedWrite.get() == writeUri && QaDocumentProvider.getDocument(context, writeName) != null }
+assertEquals(writeUri.toString(), preferences.getString(writeTag, null))
+assertEquals("QA document output", String(QaDocumentProvider.getDocument(context, writeName)!!))
+} finally {
+preferences.edit { remove(readTag); remove(writeTag) }
+QaDocumentProvider.clearDocument(context, readName)
+QaDocumentProvider.clearDocument(context, writeName)
+}
+}
 
 @Test
 fun safDirectoryGrantPersistsAndCanBeRevoked() {
@@ -254,15 +264,5 @@ fun safDirectoryGrantPersistsAndCanBeRevoked() {
             }
         providerContext.revokeUriPermission(uri, grantFlags)
     }
-}
-}
-compose.waitUntil(5_000) { selectedWrite.get() == writeUri && QaDocumentProvider.getDocument(context, writeName) != null }
-assertEquals(writeUri.toString(), preferences.getString(writeTag, null))
-assertEquals("QA document output", String(QaDocumentProvider.getDocument(context, writeName)!!))
-} finally {
-preferences.edit { remove(readTag); remove(writeTag) }
-QaDocumentProvider.clearDocument(context, readName)
-QaDocumentProvider.clearDocument(context, writeName)
-}
 }
 }

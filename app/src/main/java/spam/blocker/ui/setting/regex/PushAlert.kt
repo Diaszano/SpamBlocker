@@ -187,7 +187,7 @@ fun PushAlertEditDialog(
                 // App Package
                 LabeledRow(R.string.app) {
                     if (pkgName.isEmpty()) {
-                        GreyButton(Str(R.string.choose)) {
+GreyButton(Str(R.string.choose), modifier = Modifier.testTag("push_alert_choose_app")) {
                             chooseAppTrigger.value = true
                         }
                     } else {
@@ -199,6 +199,7 @@ fun PushAlertEditDialog(
 
                 // body
                 RegexInputBox(
+    modifier = Modifier.testTag("push_alert_body"),
                     label = {
                         Text(Str(R.string.notification_content))
                     },

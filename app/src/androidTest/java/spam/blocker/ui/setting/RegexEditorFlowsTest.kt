@@ -11,6 +11,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -129,7 +130,7 @@ compose.onNodeWithText(compose.activity.getString(R.string.label_content_rules),
 .performScrollTo()
 val newButtons = compose.onAllNodesWithText(compose.activity.getString(R.string.new_), useUnmergedTree = true)
 newButtons[1].performScrollTo().performClick()
-compose.onNodeWithText(compose.activity.getString(R.string.customize)).performClick()
+compose.onNodeWithText(compose.activity.getString(R.string.customize), useUnmergedTree = true).performClick()
 val patternField = compose.onNode(
 hasSetTextAction().and(hasText(compose.activity.getString(R.string.sms_content)))
 )
@@ -149,7 +150,7 @@ hasSetTextAction().and(hasText(compose.activity.getString(R.string.sms_content))
 compose.onNodeWithText(compose.activity.getString(R.string.save)).performClick()
 compose.waitUntil(15_000) { rules.listAll(context).singleOrNull()?.pattern == "block" }
 compose.onNodeWithTag("regex_item_${rules.listAll(context).single().id}")
-    .performTouchInput { swipeLeft(startX = width - 1f, endX = 1f, durationMillis = 200) }
+    .performTouchInput { swipeLeft(startX = width * 0.8f, endX = width * 0.2f, durationMillis = 200) }
 compose.waitUntil(15_000) { rules.listAll(context).isEmpty() }
 }
 
@@ -179,9 +180,7 @@ patternField.performTextInput("qa-copy")
 compose.onNodeWithText(compose.activity.getString(R.string.phone_number_abbrev))
 .performScrollTo().performClick()
 val autoCopyLabel = compose.activity.getString(R.string.auto_copy)
-compose.onNode(
-SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch).and(hasText(autoCopyLabel))
-).performClick()
+compose.onNodeWithContentDescription(autoCopyLabel).performClick()
 compose.onNodeWithText(compose.activity.getString(R.string.save)).performClick()
 compose.waitUntil(15_000) { rules.listAll(context).any { it.pattern == "qa-copy" } }
 val createdRule = rules.listAll(context).single()
@@ -192,12 +191,12 @@ assertTrue(createdRule.flags and Def.FLAG_AUTO_COPY != 0)
 compose.onNodeWithText("qa-copy", useUnmergedTree = true).performClick()
 val editField = compose.onNode(hasSetTextAction().and(hasText("qa-copy")))
 editField.performTextClearance()
-editField.performTextInput("qa-copy-edited")
+compose.onAllNodes(hasSetTextAction())[0].performTextInput("qa-copy-edited")
 compose.onNodeWithText(compose.activity.getString(R.string.save)).performClick()
 compose.waitUntil(15_000) { rules.listAll(context).singleOrNull()?.pattern == "qa-copy-edited" }
 val ruleId = rules.listAll(context).single().id
 compose.onNodeWithTag("regex_item_$ruleId").performTouchInput {
-swipeLeft(startX = width - 1f, endX = 1f, durationMillis = 200)
+swipeLeft(startX = width * 0.8f, endX = width * 0.2f, durationMillis = 200)
 }
 compose.waitUntil(15_000) { rules.listAll(context).isEmpty() }
 }

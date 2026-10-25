@@ -10,8 +10,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.retain
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.unit.sp
 import spam.blocker.G
@@ -327,7 +330,10 @@ object RegexMode {
                     labelId = R.string.auto_copy,
                     helpTooltip = Str(R.string.help_auto_copy),
                 ) {
-                    SwitchBox(checked = state.autoCopy.value) { state.autoCopy.value = it }
+SwitchBox(
+checked = state.autoCopy.value,
+modifier = Modifier.semantics { contentDescription = ctx.getString(R.string.auto_copy) },
+) { state.autoCopy.value = it }
                 }
             }
 

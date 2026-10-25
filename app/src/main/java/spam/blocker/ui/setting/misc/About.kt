@@ -6,7 +6,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import spam.blocker.BuildConfig
 import spam.blocker.G
 import spam.blocker.R
@@ -39,7 +42,9 @@ fun About() {
                     "${ctx.resources.getString(R.string.version)}:<br>&emsp;${BuildConfig.VERSION_NAME}<br><br>" +
                             "${ctx.resources.getString(R.string.source_code)}:<br>&emsp;<a href=\"$REPO\">$REPO</a><br>"
 
-                HtmlText(html = msg)
+            val accessibleText = "${ctx.getString(R.string.version)} ${BuildConfig.VERSION_NAME}. " +
+                "${ctx.getString(R.string.source_code)} $REPO"
+            HtmlText(html = msg, modifier = Modifier.semantics { contentDescription = accessibleText })
             }
         )
     }

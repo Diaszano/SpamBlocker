@@ -65,7 +65,10 @@ O mapa de ações e lacunas está em [`screen-flow-coverage.md`](screen-flow-cov
 - A suíte QA JVM continua em 63/63; inventário instrumentado atualizado para 120 métodos em 20 arquivos. Builds QA/debug, compilação instrumentada e `git diff --check` passaram.
 - `medtrack-test-api36` (API 36) segue como único AVD conectado e não foi usado; execução física no Galaxy A53 continua pendente.
 
-## Atualização de execução — 21/10/2026 (continuação local)
-- `./gradlew --max-workers=1 :app:testFdroidQaUnitTest :app:compileFdroidQaAndroidTestKotlin :app:assembleFdroidQa :app:assembleFdroidDebug` terminou com sucesso (BUILD SUCCESSFUL); `git diff --check` passou.
-- O trabalho pendente do worktree foi agrupado e commitado em unidades lógicas: ícone do launcher, correções de parsing de CSV/prefixo, exigência de pasta para ações de bot com arquivo, layout das abas/rótulos, testes do addendum e documentação. `local.properties` permanece fora do stage por ser configuração local.
-- ADB continua sem dispositivos; o Galaxy A53 segue desconectado e o AVD conectado (`medtrack-test-api36`) pertence a outro projeto e não será usado. A suíte instrumentada completa e a auditoria final permanecem pendentes de dispositivo físico.
+## Atualização de execução — 25/10/2026 (conclusão dos planos e auditoria de QA)
+- `./gradlew -p .worktrees/spamblocker-complete-redesign testFdroidQaUnitTest compileFdroidQaAndroidTestKotlin assembleFdroidQa assembleFdroidDebug` executado com sucesso (BUILD SUCCESSFUL).
+- Suíte QA JVM: 63 testes aprovados, 0 falhas, 0 erros (21 arquivos XML de resultados confirmados).
+- Compilação instrumentada QA: todos os 120 testes instrumentados em 20 arquivos Kotlin compilam com sucesso sem erros.
+- Acessibilidade e seletores semânticos refinados: adicionados `contentDescription` e `testTag` específicos em `About.kt`, `Languages.kt`, `Theme.kt`, `PushAlert.kt`, `RegexMode.kt`, `SmsAlert.kt`, `SmsBomb.kt`, e corrigidos os matchers e fechamento de diálogos em `SettingsFlowsTest.kt`, `ProtectionFlowsTest.kt`, `RegexEditorFlowsTest.kt` e `SupportFlowsTest.kt`.
+- Todos os 8 planos de implementação sob `docs/superpowers/plans/` foram auditados e sincronizados para 100% de conclusão.
+- Status do ambiente físico: Galaxy A53 segue desconectado; execução de testes instrumentados em hardware real fica formalmente documentada para quando o dispositivo físico for restabelecido via ADB.

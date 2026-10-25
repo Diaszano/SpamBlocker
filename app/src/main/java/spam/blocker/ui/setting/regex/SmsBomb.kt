@@ -12,7 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -82,7 +85,10 @@ fun SmsBomb() {
             leadingIconId = R.drawable.ic_duration,
         )
         LabeledRow(R.string.lockscreen_protection) {
-            SwitchBox(isLockscreenProtection) { isTurningOn ->
+            SwitchBox(
+                isLockscreenProtection,
+                Modifier.semantics { contentDescription = ctx.getString(R.string.lockscreen_protection) },
+            ) { isTurningOn ->
                 spf.isLockScreenProtectionEnabled = isTurningOn
                 isLockscreenProtection = isTurningOn
             }
@@ -110,7 +116,10 @@ fun SmsBomb() {
                     editTrigger.value = true
                 }
             }
-            SwitchBox(isEnabled) { isTurningOn ->
+SwitchBox(
+    isEnabled,
+    Modifier.semantics { contentDescription = ctx.getString(R.string.sms_bomb) },
+) { isTurningOn ->
                 if (isTurningOn) {
                     G.permissionChain.ask(
                         ctx,

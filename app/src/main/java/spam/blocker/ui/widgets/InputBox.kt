@@ -147,7 +147,8 @@ private fun InputBox(
                 .fillMaxWidth()
                 .defaultMinSize(
                     minHeight = 36.dp, // 36 is enough
-                ),
+                )
+                ,
             onValueChange = onValueChange,
             enabled = enabled && !exceedsMaxLen,
             readOnly = readOnly,

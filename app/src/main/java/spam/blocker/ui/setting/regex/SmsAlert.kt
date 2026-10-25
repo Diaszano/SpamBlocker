@@ -12,7 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -104,7 +107,10 @@ fun SmsAlert() {
                     editTrigger.value = true
                 }
             }
-            SwitchBox(isEnabled) { isTurningOn ->
+SwitchBox(
+    isEnabled,
+    Modifier.semantics { contentDescription = ctx.getString(R.string.sms_alert) },
+) { isTurningOn ->
                 if (isTurningOn) {
                     G.permissionChain.ask(
                         ctx,

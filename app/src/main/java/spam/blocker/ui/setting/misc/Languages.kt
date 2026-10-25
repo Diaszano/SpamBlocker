@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import spam.blocker.R
 import spam.blocker.def.Def.ANDROID_13
@@ -105,6 +106,7 @@ fun Language() {
             ComboBox(
                 items,
                 selected,
+                modifier = M.testTag("language_picker"),
                 displayType = ComboDisplayType.IconLabel
             )
         }

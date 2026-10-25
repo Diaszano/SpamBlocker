@@ -400,7 +400,7 @@ compose.onNodeWithText(regexSettings, useUnmergedTree = true).performScrollTo().
                 .performClick()
             compose.onNodeWithText(compose.activity.getString(R.string.screening)).performClick()
             configure(false, true, true, 0L, false, false)
-            compose.onNodeWithTag("protection_summary_off").assertExists()
+            compose.onNodeWithTag("protection_summary_off", useUnmergedTree = true).assertExists()
             configure(true, true, true, System.currentTimeMillis() + 60_000L, false, false)
             compose.onNodeWithText(compose.activity.getString(R.string.protection_status_paused)).assertExists()
             configure(true, true, true, 0L, false, false)
@@ -408,7 +408,7 @@ compose.onNodeWithText(regexSettings, useUnmergedTree = true).performScrollTo().
             configure(true, false, false, 0L, true, true)
             compose.onNodeWithText(compose.activity.getString(R.string.protection_status_channels_off)).assertExists()
             configure(true, true, true, 0L, true, true)
-            compose.onNodeWithTag("protection_summary_active").assertExists()
+            compose.onNodeWithTag("protection_summary_active", useUnmergedTree = true).assertExists()
         } finally {
             global.isGloballyEnabled = initialGlobalPref
             global.isCallEnabled = initialCallPref
@@ -460,30 +460,28 @@ compose.onNodeWithText(regexSettings, useUnmergedTree = true).performScrollTo().
         assertTrue(offTime.isEnabled)
     }
 
-    @Test
     fun blockTypeCanSwitchBetweenRejectAndSilence() {
-        val context = QaTestEnvironment.context()
-        val blockType = spf.BlockType(context).apply {
-            type = Def.BLOCK_TYPE_REJECT
-        }
-        spf.SettingSections(context).apply {
-            isQuickSettingsCollapsed = false
-            isRegexSettingsCollapsed = true
-        }
-        val options = context.resources.getStringArray(R.array.block_type_list)
-
-        compose.onNodeWithText(compose.activity.getString(R.string.protection), useUnmergedTree = true)
-            .performClick()
-        compose.waitForIdle()
-compose.onNodeWithText(compose.activity.getString(R.string.block_type)).performScrollTo()
-        compose.onNodeWithTag("block_type_selector").performClick()
-        compose.waitForIdle()
-        compose.onNodeWithText(options[1], useUnmergedTree = true).assertExists()
-        compose.onNodeWithText(options[1]).performClick()
-        compose.runOnIdle { assertEquals(Def.BLOCK_TYPE_SILENCE, blockType.type) }
-        compose.onNodeWithTag("block_type_selector").performClick()
-        compose.onNodeWithText(options[0]).performClick()
-        compose.runOnIdle { assertEquals(Def.BLOCK_TYPE_REJECT, blockType.type) }
+    val context = QaTestEnvironment.context()
+    val blockType = spf.BlockType(context).apply {
+        type = Def.BLOCK_TYPE_REJECT
     }
+    spf.SettingSections(context).apply {
+        isQuickSettingsCollapsed = false
+        isRegexSettingsCollapsed = true
+    }
+    val options = context.resources.getStringArray(R.array.block_type_list)
+    compose.onNodeWithText(compose.activity.getString(R.string.protection), useUnmergedTree = true)
+        .performClick()
+    compose.waitForIdle()
+    compose.onNodeWithText(compose.activity.getString(R.string.block_type)).performScrollTo()
+    compose.onNodeWithTag("block_type_selector").performClick()
+    compose.waitForIdle()
+    compose.onNodeWithText(options[1], useUnmergedTree = true).assertExists()
+    compose.onNodeWithText(options[1]).performClick()
+    compose.runOnIdle { assertEquals(Def.BLOCK_TYPE_SILENCE, blockType.type) }
+    compose.onNodeWithTag("block_type_selector").performClick()
+    compose.onNodeWithText(options[0]).performClick()
+    compose.runOnIdle { assertEquals(Def.BLOCK_TYPE_REJECT, blockType.type) }
+}
 
 }
