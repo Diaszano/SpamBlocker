@@ -142,7 +142,10 @@ fun RegexHeader(
         PopupDialog(
             trigger = warningTrigger,
             content = {
-                HtmlText(html = ctx.getString(R.string.failed_to_import_from_csv))
+            HtmlText(
+                html = ctx.getString(R.string.failed_to_import_from_csv),
+                modifier = Modifier.testTag("csv_import_warning"),
+            )
             },
             icon = { ResIcon(R.drawable.ic_fail_red, color = C.error) },
         )
@@ -169,7 +172,11 @@ fun RegexHeader(
             MenuButton(
                 label = Str(R.string.new_),
                 color = C.infoBlue,
-                modifier = if (forType == Def.ForNumber) Modifier.testTag("number_regex_add") else Modifier,
+                modifier = when (forType) {
+                    Def.ForNumber -> Modifier.testTag("number_regex_add")
+                    Def.ForSms -> Modifier.testTag("content_regex_add")
+                    else -> Modifier
+                },
                 items = shortClickItems,
                 longTapItems = longClickItems,
             )

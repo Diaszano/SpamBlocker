@@ -6,7 +6,10 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -85,9 +88,12 @@ fun FabWrapper(
     fabRow : @Composable BoxScope.(Modifier)->Unit,
     content: @Composable () -> Unit,
 ) {
-    Box(modifier = M.fillMaxSize()) {
-        content()
-
-        fabRow(M.align(Alignment.BottomEnd).padding(bottom = 16.dp, end = 16.dp))
+    Column(modifier = M.fillMaxSize()) {
+        Box(modifier = M.weight(1f)) {
+            content()
+        }
+        Box(modifier = M.fillMaxWidth().height(72.dp)) {
+            fabRow(M.align(Alignment.BottomEnd).padding(bottom = 16.dp, end = 16.dp))
+        }
     }
 }

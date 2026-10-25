@@ -168,13 +168,17 @@ class HistoryFlowsTest {
         val search = compose.onNode(hasSetTextAction())
         search.performTextInput("00011")
         search.assertTextContains("00011")
-        compose.waitUntil(5_000) { G.callVM.records.none { it.peer == second } }
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText(second, useUnmergedTree = true).fetchSemanticsNodes().isEmpty()
+        }
         compose.onNodeWithText(second, useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText(first, useUnmergedTree = true).assertExists()
 
         search.performTextClearance()
-        compose.waitUntil(5_000) { G.callVM.records.any { it.peer == second } }
-        compose.onNodeWithText(second, useUnmergedTree = true).assertExists()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText(second, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText(second, useUnmergedTree = true).performScrollTo().assertExists()
         search.performTextInput("no-match")
         compose.waitUntil(5_000) { G.callVM.records.isEmpty() }
         compose.onNodeWithText(compose.activity.getString(R.string.history_no_matches)).assertExists()
@@ -403,7 +407,7 @@ class HistoryFlowsTest {
         compose.onNodeWithText(compose.activity.getString(R.string.edit_regex_rule)).performClick()
         val patternField = compose.onNode(hasSetTextAction().and(hasText(number)))
         patternField.performTextReplacement(updatedPattern)
-        compose.onNodeWithText(compose.activity.getString(R.string.save)).performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.save)).performScrollTo().performClick()
         compose.waitUntil(5_000) { rules.listAll(context).singleOrNull()?.pattern == updatedPattern }
         assertEquals(originalId, rules.listAll(context).single().id)
     }

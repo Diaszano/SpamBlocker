@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -109,7 +110,7 @@ fun SmsAlert() {
             }
 SwitchBox(
     isEnabled,
-    Modifier.semantics { contentDescription = ctx.getString(R.string.sms_alert) },
+                Modifier.testTag("sms_alert_switch").semantics { contentDescription = ctx.getString(R.string.sms_alert) },
 ) { isTurningOn ->
                 if (isTurningOn) {
                     G.permissionChain.ask(

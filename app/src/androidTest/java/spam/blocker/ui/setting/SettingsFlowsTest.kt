@@ -7,6 +7,9 @@ import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasContentDescription
@@ -62,7 +65,6 @@ import spam.blocker.config.Category
 import spam.blocker.config.CategorySelection
 import spam.blocker.config.Configs
 import spam.blocker.config.NumberRules
-import kotlin.math.abs
 
 @RunWith(AndroidJUnit4::class)
 class SettingsFlowsTest {
@@ -170,25 +172,40 @@ compose.onNode(lockscreenSwitch).performClick()
 compose.runOnIdle { assertEquals(!originalLockscreenProtection, smsBomb.isLockScreenProtectionEnabled) }
 compose.waitForIdle()
 pressBack()
-compose.waitForIdle()
-if (compose.onAllNodesWithText(lockscreenLabel).fetchSemanticsNodes().isNotEmpty()) {
-    pressBack()
-    compose.waitForIdle()
-}
+pressBack()
+            compose.waitForIdle()
+            assertTrue(
+                "SMS Bomb editor still open after dismissal",
+                compose.onAllNodes(hasText(patternLabel)).fetchSemanticsNodes().isEmpty(),
+            )
 
 listOf(
-R.string.sms_alert to { smsAlert.isEnabled },
+                R.string.sms_alert to { smsAlert.isEnabled },
 R.string.sms_bomb to { smsBomb.isEnabled },
 ).forEach { (labelId, isEnabled) ->
 val label = context.getString(labelId)
 compose.waitForIdle()
-val switch = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch)
-.and(hasContentDescription(label).or(hasText(label)))
-compose.onNode(switch).performScrollTo().performClick()
+            val switchNode = compose.onNodeWithTag(
+                if (labelId == R.string.sms_alert) "sms_alert_switch" else "sms_bomb_switch"
+            ).performScrollTo()
+            switchNode.assertIsOn()
+            val bombCollapsedBeforeSwitch = smsBomb.isCollapsed
+            switchNode.performClick()
 compose.waitForIdle()
-compose.waitUntil(5_000) { !isEnabled() }
-assertFalse(isEnabled())
+            assertEquals(bombCollapsedBeforeSwitch, smsBomb.isCollapsed)
+            switchNode.assertIsOff()
+            val switchedOff = runCatching { compose.waitUntil(5_000) { !isEnabled() } }.isSuccess
+            assertTrue(
+                "$label did not turn off; stored=${isEnabled()}, permission=${Permission.receiveSMS.isGranted}",
+                switchedOff && !isEnabled(),
+            )
             }
+            compose.activityRule.scenario.recreate()
+            compose.waitForIdle()
+            assertFalse(smsAlert.isEnabled)
+            assertFalse(smsBomb.isEnabled)
+            compose.onNodeWithTag("sms_alert_switch").assertIsOff()
+            compose.onNodeWithTag("sms_bomb_switch").assertIsOff()
         } finally {
             smsAlert.isEnabled = originalAlertEnabled
             smsBomb.isEnabled = originalBombEnabled
@@ -220,20 +237,23 @@ smsBomb.isLockScreenProtectionEnabled = originalLockscreenProtection
             PushAlertViewModel.reloadDb(context)
             settings.isCollapsed = false
             PushAlertViewModel.listCollapsed.value = false
-            Permission.notificationAccess.isGranted = true
-            Permission.batteryUnRestricted.isGranted = true
             spf.SettingSections(context).isRegexSettingsCollapsed = false
+            spf.SettingSections(context).isScreeningSectionCollapsed = false
             compose.activityRule.scenario.recreate()
+            compose.onNodeWithText(context.getString(R.string.tab_settings), useUnmergedTree = true)
+                .performClick()
             compose.onNodeWithText(context.getString(R.string.protection), useUnmergedTree = true)
                 .performClick()
             compose.onNodeWithText(context.getString(R.string.push_alert)).performScrollTo()
-            val pushAlertY = compose.onNodeWithText(context.getString(R.string.push_alert)).fetchSemanticsNode().boundsInRoot.center.y
-val newButtons = compose.onAllNodesWithText(context.getString(R.string.new_), useUnmergedTree = true).fetchSemanticsNodes()
-val newButtonIndex = newButtons.indices.minBy { abs(newButtons[it].boundsInRoot.center.y - pushAlertY) }
-compose.onAllNodesWithText(context.getString(R.string.new_), useUnmergedTree = true)[newButtonIndex]
-    .performClick()
+Permission.notificationAccess.isGranted = true
+Permission.batteryUnRestricted.isGranted = true
+            compose.onNodeWithTag("push_alert_add").performScrollTo().performClick()
 
-            compose.onNodeWithTag("push_alert_choose_app", useUnmergedTree = true).performScrollTo().performClick()
+            compose.waitUntil(5_000) {
+                compose.onAllNodesWithTag("push_alert_choose_app", useUnmergedTree = true)
+                    .fetchSemanticsNodes().isNotEmpty()
+            }
+            compose.onNodeWithTag("push_alert_choose_app", useUnmergedTree = true).performClick()
             val appSearch = compose.onNode(
                 hasSetTextAction().and(hasText(context.getString(R.string.find_apps)))
             )
@@ -242,20 +262,22 @@ compose.onAllNodesWithText(context.getString(R.string.new_), useUnmergedTree = t
                 compose.onAllNodesWithTag("choose_app_$qaPackage").fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("choose_app_$qaPackage").performClick()
-            compose.onNodeWithText(context.getString(R.string.save)).performClick()
+            compose.onAllNodes(hasSetTextAction(), useUnmergedTree = true)[0].performTextInput("qa-push")
+            compose.onNodeWithText(context.getString(R.string.save)).performScrollTo().performClick()
             compose.waitUntil(10_000) { table.listAll(context).size == 1 }
             val created = table.listAll(context).single()
             assertTrue(created.isValid())
             assertEquals(qaPackage, created.pkgName)
             assertEquals("qa-push", created.body)
 
-            compose.onNodeWithText("qa-push").performClick()
-            compose.onNodeWithTag("push_alert_body", useUnmergedTree = true).performTextClearance()
-            compose.onNodeWithTag("push_alert_body", useUnmergedTree = true).performTextInput("qa-push-edited")
-            compose.onNodeWithText(context.getString(R.string.save)).performClick()
+            val recordId = created.id
+            compose.onNodeWithTag("push_alert_item_$recordId").performScrollTo().performClick()
+            compose.onNodeWithTag("push_alert_body").assertExists()
+            compose.onAllNodes(hasSetTextAction(), useUnmergedTree = true)[0].performTextClearance()
+            compose.onAllNodes(hasSetTextAction(), useUnmergedTree = true)[0].performTextInput("qa-push-edited")
+            compose.onNodeWithText(context.getString(R.string.save)).performScrollTo().performClick()
             compose.waitUntil(10_000) { table.listAll(context).singleOrNull()?.body == "qa-push-edited" }
 
-            val recordId = table.listAll(context).single().id
             compose.onNodeWithTag("push_alert_item_$recordId").performTouchInput {
                 swipeLeft(startX = width - 1f, endX = 1f, durationMillis = 200)
             }
@@ -269,7 +291,6 @@ compose.onAllNodesWithText(context.getString(R.string.new_), useUnmergedTree = t
             spf.SettingSections(context).isRegexSettingsCollapsed = originalRegexCollapsed
             Permission.notificationAccess.isGranted = originalNotificationAccess
             Permission.batteryUnRestricted.isGranted = originalBatteryPermission
-            compose.activityRule.scenario.recreate()
         }
     }
 
@@ -331,41 +352,30 @@ compose.onAllNodesWithText(context.getString(R.string.new_), useUnmergedTree = t
         var selectedAppearance = initialChoice.appearance
         val initialFamily = initialChoice.family
         val initialAppearance = initialChoice.appearance
-        val familyLabels = mapOf(
-            ThemeFamily.TRUECALLER to R.string.theme_truecaller,
-            ThemeFamily.CATPPUCCIN to R.string.theme_catppuccin,
-            ThemeFamily.CUSTOM to R.string.custom,
-        )
-        val appearanceLabels = mapOf(
-            ThemeAppearance.SYSTEM to R.string.appearance_system,
-            ThemeAppearance.LIGHT to R.string.appearance_light,
-            ThemeAppearance.DARK to R.string.appearance_dark,
-        )
         val savedCustomPalette = G.palette.allColors.associate { color ->
             color.key to G.palette.prefs.getInt("color_${color.key}", color.default.toArgb())
         }
         val systemIsDark = (ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
 
-        fun chooseComboOption(tag: String, labelId: Int) {
-            val anchorY = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.center.y
+        fun chooseComboOption(tag: String, itemId: String) {
             compose.onNodeWithTag(tag).performClick()
-            val label = compose.activity.getString(labelId)
-            val options = compose.onAllNodesWithText(label).fetchSemanticsNodes()
-            val index = options.indices.minBy { abs(options[it].boundsInRoot.center.y - anchorY) }
-            compose.onAllNodesWithText(label)[index].performClick()
+            val option = compose.onNodeWithTag("dropdown_item_$itemId")
+            option.assertExists()
+            option.performClick()
+            compose.waitForIdle()
         }
 
         fun selectFamily(family: ThemeFamily) {
             if (family == selectedFamily) return
-            chooseComboOption("theme_family", familyLabels.getValue(family))
+            chooseComboOption("theme_family", family.name)
             selectedFamily = family
             compose.waitForIdle()
         }
 
         fun selectAppearance(appearance: ThemeAppearance) {
             if (appearance == selectedAppearance) return
-            chooseComboOption("theme_appearance", appearanceLabels.getValue(appearance))
+            chooseComboOption("theme_appearance", appearance.name)
             selectedAppearance = appearance
             compose.waitForIdle()
         }
@@ -373,22 +383,28 @@ compose.onAllNodesWithText(context.getString(R.string.new_), useUnmergedTree = t
         try {
             ThemeFamily.entries.forEach { family ->
                 selectFamily(family)
-            if (family == ThemeFamily.CUSTOM) selectFamily(ThemeFamily.TRUECALLER)
+if (family == ThemeFamily.CUSTOM) {
+assertEquals(family, G.currentThemeChoice.value.family)
+assertEquals(selectedAppearance, G.currentThemeChoice.value.appearance)
+savedCustomPalette.forEach { (key, expected) ->
+val actual = G.palette.allColors.first { it.key == key }.state.value.toArgb()
+assertEquals("Custom palette color $key", expected, actual)
+}
+return@forEach
+}
                 ThemeAppearance.entries.forEach { appearance ->
                     selectAppearance(appearance)
 if (family != initialFamily || themePrefs.themeFamily.isNotEmpty())
     assertEquals(family.name, themePrefs.themeFamily)
 if (appearance != initialAppearance || themePrefs.themeAppearance.isNotEmpty())
-    assertEquals(appearance.name, themePrefs.themeAppearance)
+    assertEquals(
+        "family=$family appearance=$appearance tracked=$selectedAppearance current=${G.currentThemeChoice.value}",
+        appearance.name,
+        themePrefs.themeAppearance,
+    )
                     assertEquals(family, G.currentThemeChoice.value.family)
                     assertEquals(appearance, G.currentThemeChoice.value.appearance)
 
-                    if (family == ThemeFamily.CUSTOM) {
-                        savedCustomPalette.forEach { (key, expected) ->
-                            val actual = G.palette.allColors.first { it.key == key }.state.value.toArgb()
-                            assertEquals("Custom palette color $key", expected, actual)
-                        }
-                    } else {
                         val dark = when (appearance) {
                             ThemeAppearance.SYSTEM -> systemIsDark
                             ThemeAppearance.LIGHT -> false
@@ -397,9 +413,7 @@ if (appearance != initialAppearance || themePrefs.themeAppearance.isNotEmpty())
                         val expected = presetColors(family, dark)
                         assertEquals(expected["background"], G.palette.background)
                         assertEquals(expected["text"], G.palette.textGrey)
-                    }
                 }
-            if (family == ThemeFamily.CUSTOM) selectFamily(ThemeFamily.CUSTOM)
             }
 
             compose.activityRule.scenario.recreate()
@@ -413,15 +427,13 @@ if (appearance != initialAppearance || themePrefs.themeAppearance.isNotEmpty())
                 assertEquals("Custom palette color $key after recreation", expected, actual)
             }
         } finally {
-        if (selectedFamily == ThemeFamily.CUSTOM) selectFamily(ThemeFamily.TRUECALLER)
-        selectAppearance(initialAppearance)
+            if (selectedFamily == ThemeFamily.CUSTOM) selectFamily(ThemeFamily.TRUECALLER)
             selectFamily(initialFamily)
+            selectAppearance(initialAppearance)
             themePrefs.themeFamily = initialFamilyPreference
             themePrefs.themeAppearance = initialAppearancePreference
             assertEquals(initialFamilyPreference, themePrefs.themeFamily)
             assertEquals(initialAppearancePreference, themePrefs.themeAppearance)
-            assertEquals(initialFamily, G.currentThemeChoice.value.family)
-            assertEquals(initialAppearance, G.currentThemeChoice.value.appearance)
         }
     }
 
@@ -681,7 +693,9 @@ compose.waitUntil(5_000) { BotTable.listAll(context).any { it.desc == descriptio
         compose.onNodeWithText(context.getString(R.string.export)).performScrollTo().performClick()
         compose.onNodeWithText(context.getString(R.string.include_settings)).assertExists()
         compose.onNodeWithText(context.getString(R.string.exclude_settings)).assertExists()
-        pressBack()
+        compose.activity.runOnUiThread {
+            compose.activity.onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     @Test

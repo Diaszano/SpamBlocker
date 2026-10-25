@@ -11,7 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.test.espresso.Espresso.pressBack
@@ -76,19 +76,20 @@ fun customQueryApiCanBeCreatedEditedDeletedAndRestored() {
         val description = "QA query API"
         compose.onAllNodes(hasSetTextAction())[0].performTextInput(description)
         pressBack()
-        compose.onNodeWithText(context.getString(R.string.save)).performClick()
+        compose.onNodeWithText(context.getString(R.string.save)).performScrollTo().performClick()
         compose.waitUntil(5_000) {
             QueryApiTable().listAll(context).any { it.desc == description }
         }
 
         assertTrue(QueryApiTable().listAll(context).any { it.desc == description })
 
-    compose.onNodeWithText(description).performClick()
+compose.onNodeWithText(description).performScrollTo().performClick()
     val updatedDescription = "QA API edited"
     val descriptionField = compose.onNode(hasSetTextAction().and(hasText(description)))
-    descriptionField.performTextClearance()
-    compose.onAllNodes(hasSetTextAction())[0].performTextInput(updatedDescription)
-    compose.onNodeWithText(context.getString(R.string.save)).performClick()
+    descriptionField.performTextReplacement(updatedDescription)
+compose.waitForIdle()
+    pressBack()
+    compose.onNodeWithText(context.getString(R.string.save)).performScrollTo().performClick()
     compose.waitUntil(5_000) {
         QueryApiTable().listAll(context).any { it.desc == updatedDescription }
     }
@@ -100,7 +101,9 @@ fun customQueryApiCanBeCreatedEditedDeletedAndRestored() {
         QueryApiTable().listAll(context).none { it.desc == updatedDescription }
     }
     compose.onNodeWithText(context.getString(R.string.undelete)).performClick()
-    assertTrue(QueryApiTable().listAll(context).any { it.desc == updatedDescription })
+    compose.waitUntil(5_000) {
+        QueryApiTable().listAll(context).any { it.desc == updatedDescription }
+    }
     }
 
  @Test

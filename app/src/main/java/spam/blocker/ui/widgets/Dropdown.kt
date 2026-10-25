@@ -19,6 +19,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import spam.blocker.G
@@ -71,7 +72,8 @@ class LabelItem(
         RowVCenterSpaced(
             space = 10,
             modifier =  M
-                .combinedClickable(
+ .then(if (id.isNotEmpty()) Modifier.testTag("dropdown_item_$id") else Modifier)
+ .combinedClickable(
                     onClick = {
                         onClick?.let {
                             it(menuExpandedState)

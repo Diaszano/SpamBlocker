@@ -9,8 +9,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.semantics.Role
@@ -91,7 +91,7 @@ class ReportApiCreationFlowTest {
         newButtons[reportNewButtonIndex].performClick()
         compose.onNodeWithText(context.getString(R.string.customize)).performClick()
         compose.onAllNodes(hasSetTextAction())[0].performTextInput(description)
-        compose.onNodeWithText(context.getString(R.string.save)).performClick()
+        compose.onNodeWithText(context.getString(R.string.save)).performScrollTo().performClick()
 
         compose.waitUntil(5_000) {
             ReportApiTable().listAll(context).any { it.desc == description }
@@ -105,9 +105,8 @@ class ReportApiCreationFlowTest {
         compose.onNodeWithText(description).performClick()
         val updatedDescription = "QA report API edited"
         val descriptionField = compose.onNode(hasSetTextAction().and(hasText(description)))
-        descriptionField.performTextClearance()
-        compose.onAllNodes(hasSetTextAction())[0].performTextInput(updatedDescription)
-        compose.onNodeWithText(context.getString(R.string.save)).performClick()
+    descriptionField.performTextReplacement(updatedDescription)
+        compose.onNodeWithText(context.getString(R.string.save)).performScrollTo().performClick()
         compose.waitUntil(5_000) {
             ReportApiTable().listAll(context).any { it.desc == updatedDescription }
         }
@@ -118,7 +117,9 @@ class ReportApiCreationFlowTest {
             ReportApiTable().listAll(context).none { it.desc == updatedDescription }
         }
         compose.onNodeWithText(context.getString(R.string.undelete)).performClick()
-        assertTrue(ReportApiTable().listAll(context).any { it.desc == updatedDescription })
+    compose.waitUntil(5_000) {
+        ReportApiTable().listAll(context).any { it.desc == updatedDescription }
+    }
     }
 
     companion object {

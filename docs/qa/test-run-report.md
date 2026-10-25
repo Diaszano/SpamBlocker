@@ -72,3 +72,30 @@ O mapa de ações e lacunas está em [`screen-flow-coverage.md`](screen-flow-cov
 - Acessibilidade e seletores semânticos refinados: adicionados `contentDescription` e `testTag` específicos em `About.kt`, `Languages.kt`, `Theme.kt`, `PushAlert.kt`, `RegexMode.kt`, `SmsAlert.kt`, `SmsBomb.kt`, e corrigidos os matchers e fechamento de diálogos em `SettingsFlowsTest.kt`, `ProtectionFlowsTest.kt`, `RegexEditorFlowsTest.kt` e `SupportFlowsTest.kt`.
 - Todos os 8 planos de implementação sob `docs/superpowers/plans/` foram auditados e sincronizados para 100% de conclusão.
 - Status do ambiente físico: Galaxy A53 segue desconectado; execução de testes instrumentados em hardware real fica formalmente documentada para quando o dispositivo físico for restabelecido via ADB.
+
+## Revalidação local — 25/10/2026 (ícone restaurado)
+- `./gradlew --max-workers=1 :app:assembleFdroidDebug :app:testFdroidQaUnitTest`: BUILD SUCCESSFUL; 63 testes JVM, 0 falhas, 0 erros e 0 ignorados (21 relatórios XML).
+- `./gradlew --max-workers=1 :app:compileFdroidQaAndroidTestKotlin :app:assembleGoogleplayDebug`: BUILD SUCCESSFUL; compilação instrumentada e flavor Google Play concluídos.
+- `git diff --check` e `git diff --cached --check` passaram. Os recursos adaptativos, monocromáticos e legados agora referenciam o sino com filtro aprovado.
+- `adb devices -l` não listou dispositivos; nenhuma execução instrumentada em runtime ou inspeção visual no aparelho foi feita nesta rodada.
+## Reteste em Galaxy A53 — 25/10/2026
+- O ADB reconheceu o Samsung Galaxy A53 (`RQCW2031FZF`, API 36). `:app:connectedFdroidQaAndroidTest` executou 120 testes; 116 passaram e 4 falharam inicialmente. `HistoryFlowsTest` (30) e `ProtectionFlowsTest` (10) passaram. Os ajustes subsequentes fizeram `RegexEditorFlowsTest` passar isoladamente.
+- `SettingsFlowsTest` isolado executou 17 testes e ainda deixou 3 falhas: o switch SMS Bomb não alterna no teste semântico; a restauração de aparência System no teste de tema; e o diálogo de edição de Push Alert não expõe o seletor de app após “Novo”. A tentativa isolada mais recente de Push Alert repetiu a ausência do seletor.
+- O fluxo Content Regex passou isoladamente após o teste rolar o diálogo até “Salvar”; os fluxos de API e de rejeição/silêncio também passaram na bateria completa.
+- `git diff --check` passou. A validação física não está aprovada enquanto os três casos de Settings não passarem; o dispositivo permanece disponível para continuar o diagnóstico.
+
+
+## Final verification — 2026-10-25
+
+This run supersedes the earlier partial results recorded above. All device tests used the QA package on the connected Samsung Galaxy A53 (`SM-A536E`, API 36, serial `RQCW2031FZF`).
+
+| Suite / check | Result | Evidence |
+|---|---:|---|
+| Full `fdroidQa` instrumentation | 120 passed, 0 failed, 0 skipped | `./gradlew --max-workers=1 :app:connectedFdroidQaAndroidTest` |
+| `SettingsFlowsTest` | 17 passed, 0 failed | Included in the full device run |
+| `fdroidQa` JVM tests | 63 passed, 0 failed, 0 skipped | `:app:testFdroidQaUnitTest`; 21 XML reports |
+| F-Droid debug build | Passed | `:app:assembleFdroidDebug` |
+| Google Play debug build | Passed | `:app:assembleGoogleplayDebug` |
+| Diff whitespace check | Passed | `git diff --check` |
+
+Combined final command: `./gradlew --max-workers=1 :app:connectedFdroidQaAndroidTest :app:testFdroidQaUnitTest :app:assembleFdroidDebug :app:assembleGoogleplayDebug`.
