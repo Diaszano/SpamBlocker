@@ -1,8 +1,7 @@
 package spam.blocker.qa
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -11,9 +10,7 @@ class QaPackageIsolationTest {
 
     @Test
     fun instrumentationTargetsOnlyTheQaApplication() {
-        assertEquals(
-            "spam.blocker.qa",
-            InstrumentationRegistry.getInstrumentation().targetContext.packageName,
-        )
+        val context = QaTestEnvironment.context()
+        assertTrue(context.packageName in setOf("spam.blocker.qa", "spam.blocker.googleplay.qa"))
     }
 }

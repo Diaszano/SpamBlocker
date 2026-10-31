@@ -50,6 +50,10 @@
     <!-- for reporting bugs(dump adb log) -->
     <uses-permission android:name="android.permission.READ_LOGS" />
 
+    <permission
+        android:name="spam.blocker.permission.SCREEN_SMS"
+        android:protectionLevel="signature" />
+
     <application
         android:name=".App"
         android:requestLegacyExternalStorage="true"
@@ -138,7 +142,8 @@
 
         <service
             android:name=".service.PublicSMSScreeningService"
-            android:exported="true">
+            android:exported="true"
+            android:permission="spam.blocker.permission.SCREEN_SMS">
             <intent-filter>
                 <action android:name="sms.screening.provider.PublicSMSScreeningService" />
             </intent-filter>

@@ -21,6 +21,8 @@ data class HttpResult(
 )
 
 const val UA = "User-Agent"
+private const val CONNECT_TIMEOUT_MS = 5_000
+private const val READ_TIMEOUT_MS = 5_000
 
 // An discardable `HttpURLConnection`.
 fun asyncHttpRequest(
@@ -39,6 +41,8 @@ fun asyncHttpRequest(
 
         try {
             conn = URL(urlString).openConnection() as HttpURLConnection
+            conn.connectTimeout = CONNECT_TIMEOUT_MS
+            conn.readTimeout = READ_TIMEOUT_MS
 
             headersMap.forEach { (key, value) ->
                 conn.setRequestProperty(key, value)

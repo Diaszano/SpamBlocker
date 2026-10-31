@@ -231,7 +231,7 @@ smsBomb.isLockScreenProtectionEnabled = originalLockscreenProtection
         val originalRegexCollapsed = spf.SettingSections(context).isRegexSettingsCollapsed
         val originalNotificationAccess = Permission.notificationAccess.isGranted
         val originalBatteryPermission = Permission.batteryUnRestricted.isGranted
-        val qaPackage = "spam.blocker.qa"
+        val qaPackage = context.packageName
         try {
             table.clearAll(context)
             PushAlertViewModel.reloadDb(context)

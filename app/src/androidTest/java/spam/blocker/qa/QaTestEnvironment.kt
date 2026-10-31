@@ -10,7 +10,7 @@ import spam.blocker.util.spf
 object QaTestEnvironment {
 
     fun context(): Context = InstrumentationRegistry.getInstrumentation().targetContext.also {
-        check(it.packageName == "spam.blocker.qa")
+        check(it.packageName == "spam.blocker.qa" || it.packageName == "spam.blocker.googleplay.qa")
     }
 
     fun resetPreferences() {
